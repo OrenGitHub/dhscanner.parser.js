@@ -50,6 +50,8 @@ import Location
 @RPAREN = \)
 @LBRACK = \[
 @RBRACK = \]
+@LBRACE = \{
+@RBRACE = \}
 
 -- ***************
 -- *             *
@@ -57,6 +59,7 @@ import Location
 -- *             *
 -- ***************
 @COLON  = ":"
+@COMMA  = ","
 @HYPHEN = \- 
 
 -- ************
@@ -68,19 +71,21 @@ import Location
 @KW_VAR             = "var"
 @KW_ARGS            = "args"
 @KW_NAME            = "name"
-@KW_EXPR            = "expr"
-@KW_MAME            = "Name"
-@KW_TYPE            = "type"
+@KW_EXPR            =  expr
+@KW_MAME            =  Name
+@KW_TYPE            = \"type\"
 @KW_LEFT            = "left"
 @KW_LOOP            = "loop"
 @KW_INIT            = "init"
 @KW_COND            = "cond"
+@KW_BODY            = \"body\"
 @KW_EXPRS           = "exprs"
 @KW_VALUE           = "value"
 @KW_RIGHT           = "right"
 @KW_STMTS           = "stmts"
-@KW_ARRAY           = "array"
-@KW_PARAM           = "Param"
+@KW_ARRAY           = array
+@KW_PARAM           = Param
+@KW_PROGRAM         = \"Program\"
 @KW_STMT_IF         = "Stmt_If"
 @KW_STMT_FOR        = "Stmt_For"
 @KW_STMT_ECHO       = "Stmt_Echo"
@@ -92,6 +97,7 @@ import Location
 @KW_RETURN_TYPE     = "returnType"
 @KW_STMT_RETURN     = "Stmt_Return"
 @KW_STMT_FUNCTION   = "Stmt_Function"
+@KW_FUNCTION_DEC    = \"FunctionDeclaration\"
 @KW_EXPR_CONST_GET  = "Expr_ConstFetch"
 @KW_EXPR_BINOP_LT   = "Expr_BinaryOp_Smaller"
 @KW_EXPR_BINOP_PLUS = "Expr_BinaryOp_Plus"
@@ -137,6 +143,8 @@ tokens :-
 @RPAREN    { lex' AlexRawToken_RPAREN }
 @LBRACK    { lex' AlexRawToken_LBRACK }
 @RBRACK    { lex' AlexRawToken_RBRACK }
+@LBRACE    { lex' AlexRawToken_LBRACE }
+@RBRACE    { lex' AlexRawToken_RBRACE }
 
 -- ***************
 -- *             *
@@ -145,6 +153,7 @@ tokens :-
 -- ***************
 
 @COLON     { lex' AlexRawToken_COLON  }
+@COMMA     { lex' AlexRawToken_COMMA  }
 @HYPHEN    { lex' AlexRawToken_HYPHEN }
 
 -- ************
@@ -164,12 +173,14 @@ tokens :-
 @KW_LOOP            { lex' AlexRawToken_LOOP            }
 @KW_INIT            { lex' AlexRawToken_INIT            }
 @KW_COND            { lex' AlexRawToken_COND            }
+@KW_BODY            { lex' AlexRawToken_BODY            }
 @KW_EXPRS           { lex' AlexRawToken_EXPRS           }
 @KW_VALUE           { lex' AlexRawToken_VALUE           }
 @KW_RIGHT           { lex' AlexRawToken_RIGHT           }
 @KW_STMTS           { lex' AlexRawToken_STMTS           }
 @KW_ARRAY           { lex' AlexRawToken_ARRAY           }
 @KW_PARAM           { lex' AlexRawToken_PARAM           }
+@KW_PROGRAM         { lex' AlexRawToken_PROGRAM         }
 @KW_STMT_IF         { lex' AlexRawToken_STMT_IF         }
 @KW_STMT_FOR        { lex' AlexRawToken_STMT_FOR        }
 @KW_STMT_ECHO       { lex' AlexRawToken_STMT_ECHO       }
@@ -181,6 +192,7 @@ tokens :-
 @KW_RETURN_TYPE     { lex' AlexRawToken_RETURN_TYPE     }
 @KW_STMT_RETURN     { lex' AlexRawToken_STMT_RETURN     }
 @KW_STMT_FUNCTION   { lex' AlexRawToken_STMT_FUNCTION   }
+@KW_FUNCTION_DEC    { lex' AlexRawToken_FUNCTION_DEC    }
 @KW_EXPR_CONST_GET  { lex' AlexRawToken_EXPR_CONST_GET  }
 @KW_EXPR_BINOP_LT   { lex' AlexRawToken_EXPR_BINOP_LT   }
 @KW_EXPR_BINOP_PLUS { lex' AlexRawToken_EXPR_BINOP_PLUS }
@@ -264,6 +276,8 @@ data AlexRawToken
      | AlexRawToken_RPAREN          -- ^ Parentheses __)__
      | AlexRawToken_LBRACK          -- ^ Parentheses __[__
      | AlexRawToken_RBRACK          -- ^ Parentheses __]__
+     | AlexRawToken_LBRACE          -- ^ Parentheses __{__
+     | AlexRawToken_RBRACE          -- ^ Parentheses __}__
  
      | AlexRawToken_ARG             -- ^ Reserved Keyword
      | AlexRawToken_VAR             -- ^ Reserved Keyword
@@ -276,12 +290,14 @@ data AlexRawToken
      | AlexRawToken_LOOP            -- ^ Reserved Keyword
      | AlexRawToken_INIT            -- ^ Reserved Keyword
      | AlexRawToken_COND            -- ^ Reserved Keyword
+     | AlexRawToken_BODY            -- ^ Reserved Keyword
      | AlexRawToken_EXPRS           -- ^ Reserved Keyword
      | AlexRawToken_VALUE           -- ^ Reserved Keyword
      | AlexRawToken_RIGHT           -- ^ Reserved Keyword
      | AlexRawToken_STMTS           -- ^ Reserved Keyword
      | AlexRawToken_ARRAY           -- ^ Reserved Keyword
      | AlexRawToken_PARAM           -- ^ Reserved Keyword
+     | AlexRawToken_PROGRAM         -- ^ Reserved Keyword
      | AlexRawToken_STMT_IF         -- ^ Reserved Keyword
      | AlexRawToken_STMT_FOR        -- ^ Reserved Keyword
      | AlexRawToken_STMT_ECHO       -- ^ Reserved Keyword
@@ -293,11 +309,13 @@ data AlexRawToken
      | AlexRawToken_STMT_RETURN     -- ^ Reserved Keyword
      | AlexRawToken_RETURN_TYPE     -- ^ Reserved Keyword
      | AlexRawToken_STMT_FUNCTION   -- ^ Reserved Keyword
+     | AlexRawToken_FUNCTION_DEC    -- ^ Reserved Keyword
      | AlexRawToken_EXPR_CONST_GET  -- ^ Reserved Keyword
      | AlexRawToken_EXPR_BINOP_LT   -- ^ Reserved Keyword
      | AlexRawToken_EXPR_BINOP_PLUS -- ^ Reserved Keyword
 
      | AlexRawToken_COLON           -- ^ Punctuation __:__
+     | AlexRawToken_COMMA           -- ^ Punctuation __,__
      | AlexRawToken_HYPHEN          -- ^ Punctuation __-__
 
      | TokenEOF -- ^ [EOF](https://en.wikipedia.org/wiki/End-of-file)

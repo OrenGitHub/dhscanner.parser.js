@@ -64,6 +64,8 @@ import Data.Map ( fromList )
 ')'    { AlexTokenTag AlexRawToken_RPAREN _ }
 '['    { AlexTokenTag AlexRawToken_LBRACK _ }
 ']'    { AlexTokenTag AlexRawToken_RBRACK _ }
+'{'    { AlexTokenTag AlexRawToken_LBRACE _ }
+'}'    { AlexTokenTag AlexRawToken_RBRACE _ }
 
 -- ***************
 -- *             *
@@ -72,6 +74,7 @@ import Data.Map ( fromList )
 -- ***************
 
 ':'    { AlexTokenTag AlexRawToken_COLON  _ }
+','    { AlexTokenTag AlexRawToken_COMMA  _ }
 '-'    { AlexTokenTag AlexRawToken_HYPHEN _ }
 
 -- *********************
@@ -91,12 +94,14 @@ import Data.Map ( fromList )
 'loop'                  { AlexTokenTag AlexRawToken_LOOP            _ }
 'init'                  { AlexTokenTag AlexRawToken_INIT            _ }
 'cond'                  { AlexTokenTag AlexRawToken_COND            _ }
+'body'                  { AlexTokenTag AlexRawToken_BODY            _ }
 'exprs'                 { AlexTokenTag AlexRawToken_EXPRS           _ }
 'value'                 { AlexTokenTag AlexRawToken_VALUE           _ }
 'right'                 { AlexTokenTag AlexRawToken_RIGHT           _ }
 'stmts'                 { AlexTokenTag AlexRawToken_STMTS           _ }
 'array'                 { AlexTokenTag AlexRawToken_ARRAY           _ }
 'Param'                 { AlexTokenTag AlexRawToken_PARAM           _ }
+'Program'               { AlexTokenTag AlexRawToken_PROGRAM         _ }
 'Stmt_If'               { AlexTokenTag AlexRawToken_STMT_IF         _ }
 'Stmt_For'              { AlexTokenTag AlexRawToken_STMT_FOR        _ }
 'Stmt_Echo'             { AlexTokenTag AlexRawToken_STMT_ECHO       _ }
@@ -108,6 +113,7 @@ import Data.Map ( fromList )
 'Stmt_Return'           { AlexTokenTag AlexRawToken_STMT_RETURN     _ }
 'returnType'            { AlexTokenTag AlexRawToken_RETURN_TYPE     _ }
 'Stmt_Function'         { AlexTokenTag AlexRawToken_STMT_FUNCTION   _ }
+'FunctionDeclaration'   { AlexTokenTag AlexRawToken_FUNCTION_DEC    _ }
 'Expr_ConstFetch'       { AlexTokenTag AlexRawToken_EXPR_CONST_GET  _ }
 'Expr_BinaryOp_Plus'    { AlexTokenTag AlexRawToken_EXPR_BINOP_PLUS _ }
 'Expr_BinaryOp_Smaller' { AlexTokenTag AlexRawToken_EXPR_BINOP_LT   _ }
@@ -133,12 +139,12 @@ ID     { AlexTokenTag (AlexRawToken_ID  id) _ }
 -- * Ast root: program *
 -- *                   *
 -- *********************
-program: 'array' '(' decs ')'
+program: '{' 'type' ':' 'Program' ',' 'body' ':' '[' dec_function ']' '}'
 {
     Ast.Root
     {
         Ast.filename = "DDD",
-        actualAst = rights $3
+        actualAst = []
     }
 }
 
@@ -175,31 +181,11 @@ dec: dec_function { $1 }
 -- * dec_function *
 -- *              *
 -- ****************
-dec_function: 'Stmt_Function' '(' dec_function_attrs ')'
+dec_function: '{'
+    'type' ':' 'FunctionDeclaration' ','
+'}'
 {
-    let
-
-        name = getFuncNameAttr $3
-        returnType = getFuncReturnType $3
-        params = getFuncParams $3
-        body = getFuncBody $3
-
-    in
-
-        case name of
-            Nothing -> Left "Function missing name"
-            Just name' -> case params of
-                Nothing -> Left "Function missing params"
-                Just params' -> case body of
-                    Nothing -> Left "Function missing body"
-                    Just body' -> case returnType of
-                        Nothing -> Left "MMM"
-                        Just returnType' -> Right $ Ast.DecFunc $ Ast.DecFuncContent {
-                            Ast.decFuncReturnType = returnType',
-                            Ast.decFuncName = name',
-                            Ast.decFuncParams = params',
-                            Ast.decFuncBody = body'
-                        }
+    Left "MMM"
 }
 
 -- **********************
