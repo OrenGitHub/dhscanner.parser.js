@@ -67,8 +67,12 @@ import Location
 -- * keywords *
 -- *          *
 -- ************
+@KW_ID              = \"id\"
+@KW_END             = \"end\"
+@KW_LOC             = \"loc\"
 @KW_ARG             = "Arg"
 @KW_VAR             = "var"
+@KW_LINE            = \"line\"
 @KW_ARGS            = "args"
 @KW_NAME            = "name"
 @KW_EXPR            =  expr
@@ -79,12 +83,14 @@ import Location
 @KW_INIT            = "init"
 @KW_COND            = "cond"
 @KW_BODY            = \"body\"
+@KW_START           = \"start\"
 @KW_EXPRS           = "exprs"
 @KW_VALUE           = "value"
 @KW_RIGHT           = "right"
 @KW_STMTS           = "stmts"
 @KW_ARRAY           = array
 @KW_PARAM           = Param
+@KW_COLUMN          = \"column\"
 @KW_PROGRAM         = \"Program\"
 @KW_STMT_IF         = "Stmt_If"
 @KW_STMT_FOR        = "Stmt_For"
@@ -93,7 +99,7 @@ import Location
 @KW_EXPR_CALL       = "Expr_FuncCall"
 @KW_STMT_EXPR       = "Stmt_Expression"
 @KW_SCALAR_INT      = "Scalar_Int"
-@KW_IDENTIFIER      = "Identifier"
+@KW_IDENTIFIER      = \"Identifier\"
 @KW_RETURN_TYPE     = "returnType"
 @KW_STMT_RETURN     = "Stmt_Return"
 @KW_STMT_FUNCTION   = "Stmt_Function"
@@ -162,8 +168,12 @@ tokens :-
 -- *          *
 -- ************
 
+@KW_ID              { lex' AlexRawToken_KWID            }
+@KW_END             { lex' AlexRawToken_END             }
+@KW_LOC             { lex' AlexRawToken_LOC             }
 @KW_ARG             { lex' AlexRawToken_ARG             }
 @KW_VAR             { lex' AlexRawToken_VAR             }
+@KW_LINE            { lex' AlexRawToken_LINE            }
 @KW_ARGS            { lex' AlexRawToken_ARGS            }
 @KW_NAME            { lex' AlexRawToken_NAME            }
 @KW_EXPR            { lex' AlexRawToken_EXPR            }
@@ -174,12 +184,14 @@ tokens :-
 @KW_INIT            { lex' AlexRawToken_INIT            }
 @KW_COND            { lex' AlexRawToken_COND            }
 @KW_BODY            { lex' AlexRawToken_BODY            }
+@KW_START           { lex' AlexRawToken_START           }
 @KW_EXPRS           { lex' AlexRawToken_EXPRS           }
 @KW_VALUE           { lex' AlexRawToken_VALUE           }
 @KW_RIGHT           { lex' AlexRawToken_RIGHT           }
 @KW_STMTS           { lex' AlexRawToken_STMTS           }
 @KW_ARRAY           { lex' AlexRawToken_ARRAY           }
 @KW_PARAM           { lex' AlexRawToken_PARAM           }
+@KW_COLUMN          { lex' AlexRawToken_COLUMN          }
 @KW_PROGRAM         { lex' AlexRawToken_PROGRAM         }
 @KW_STMT_IF         { lex' AlexRawToken_STMT_IF         }
 @KW_STMT_FOR        { lex' AlexRawToken_STMT_FOR        }
@@ -279,8 +291,12 @@ data AlexRawToken
      | AlexRawToken_LBRACE          -- ^ Parentheses __{__
      | AlexRawToken_RBRACE          -- ^ Parentheses __}__
  
+     | AlexRawToken_KWID            -- ^ Reserved Keyword
+     | AlexRawToken_END             -- ^ Reserved Keyword
+     | AlexRawToken_LOC             -- ^ Reserved Keyword
      | AlexRawToken_ARG             -- ^ Reserved Keyword
      | AlexRawToken_VAR             -- ^ Reserved Keyword
+     | AlexRawToken_LINE            -- ^ Reserved Keyword
      | AlexRawToken_ARGS            -- ^ Reserved Keyword
      | AlexRawToken_NAME            -- ^ Reserved Keyword
      | AlexRawToken_EXPR            -- ^ Reserved Keyword
@@ -291,12 +307,14 @@ data AlexRawToken
      | AlexRawToken_INIT            -- ^ Reserved Keyword
      | AlexRawToken_COND            -- ^ Reserved Keyword
      | AlexRawToken_BODY            -- ^ Reserved Keyword
+     | AlexRawToken_START           -- ^ Reserved Keyword
      | AlexRawToken_EXPRS           -- ^ Reserved Keyword
      | AlexRawToken_VALUE           -- ^ Reserved Keyword
      | AlexRawToken_RIGHT           -- ^ Reserved Keyword
      | AlexRawToken_STMTS           -- ^ Reserved Keyword
      | AlexRawToken_ARRAY           -- ^ Reserved Keyword
      | AlexRawToken_PARAM           -- ^ Reserved Keyword
+     | AlexRawToken_COLUMN          -- ^ Reserved Keyword
      | AlexRawToken_PROGRAM         -- ^ Reserved Keyword
      | AlexRawToken_STMT_IF         -- ^ Reserved Keyword
      | AlexRawToken_STMT_FOR        -- ^ Reserved Keyword

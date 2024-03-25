@@ -83,8 +83,12 @@ import Data.Map ( fromList )
 -- *                   *
 -- *********************
 
+'id'                    { AlexTokenTag AlexRawToken_KWID            _ }
+'end'                   { AlexTokenTag AlexRawToken_END             _ }
+'loc'                   { AlexTokenTag AlexRawToken_LOC             _ }
 'Arg'                   { AlexTokenTag AlexRawToken_ARG             _ }
 'var'                   { AlexTokenTag AlexRawToken_VAR             _ }
+'line'                  { AlexTokenTag AlexRawToken_LINE            _ }
 'args'                  { AlexTokenTag AlexRawToken_ARGS            _ }
 'name'                  { AlexTokenTag AlexRawToken_NAME            _ }
 'expr'                  { AlexTokenTag AlexRawToken_EXPR            _ }
@@ -95,12 +99,14 @@ import Data.Map ( fromList )
 'init'                  { AlexTokenTag AlexRawToken_INIT            _ }
 'cond'                  { AlexTokenTag AlexRawToken_COND            _ }
 'body'                  { AlexTokenTag AlexRawToken_BODY            _ }
+'start'                 { AlexTokenTag AlexRawToken_START           _ }
 'exprs'                 { AlexTokenTag AlexRawToken_EXPRS           _ }
 'value'                 { AlexTokenTag AlexRawToken_VALUE           _ }
 'right'                 { AlexTokenTag AlexRawToken_RIGHT           _ }
 'stmts'                 { AlexTokenTag AlexRawToken_STMTS           _ }
 'array'                 { AlexTokenTag AlexRawToken_ARRAY           _ }
 'Param'                 { AlexTokenTag AlexRawToken_PARAM           _ }
+'column'                { AlexTokenTag AlexRawToken_COLUMN          _ }
 'Program'               { AlexTokenTag AlexRawToken_PROGRAM         _ }
 'Stmt_If'               { AlexTokenTag AlexRawToken_STMT_IF         _ }
 'Stmt_For'              { AlexTokenTag AlexRawToken_STMT_FOR        _ }
@@ -176,6 +182,46 @@ numbered_dec: INT ':' dec { $3 }
 -- *******
 dec: dec_function { $1 }
 
+-- ************
+-- *          *
+-- * location *
+-- *          *
+-- ************
+location:
+'{'
+    'start' ':' '{' 'line' ':' INT ',' 'column' ':' INT '}' ','
+    'end'   ':' '{' 'line' ':' INT ',' 'column' ':' INT '}'
+'}'
+{
+    Location
+    {
+        Location.filename = "DDD",
+        lineStart = tokIntValue $7,
+        colStart = tokIntValue $11,
+        lineEnd = tokIntValue $19,
+        colEnd = tokIntValue $21
+    }
+}
+
+-- **************
+-- *            *
+-- * identifier *
+-- *            *
+-- **************
+identifier:
+'{'
+    'type' ':' 'Identifier' ','
+    'name' ':' ID ','
+    'loc' ':' location
+'}'
+{
+    Token.Named
+    {
+        Token.content = tokIDValue $8,
+        Token.location = $12
+    } 
+}
+
 -- ****************
 -- *              *
 -- * dec_function *
@@ -183,6 +229,7 @@ dec: dec_function { $1 }
 -- ****************
 dec_function: '{'
     'type' ':' 'FunctionDeclaration' ','
+    'id' ':' identifier
 '}'
 {
     Left "MMM"
