@@ -74,7 +74,7 @@ import Location
 @KW_VAR             = "var"
 @KW_LINE            = \"line\"
 @KW_ARGS            = "args"
-@KW_NAME            = "name"
+@KW_NAME            = \"name\"
 @KW_EXPR            =  expr
 @KW_MAME            =  Name
 @KW_TYPE            = \"type\"
@@ -123,7 +123,8 @@ import Location
 -- ***************
 @LETTER = [A-Za-z_]
 @LETTER_OR_DIGIT = @LETTER | @DIGIT
-@ID = @LETTER(@LETTER_OR_DIGIT*)
+@QUOTE = \"
+@ID = (@QUOTE)@LETTER(@LETTER_OR_DIGIT*)(@QUOTE)
 
 -- ***************
 -- *             *
