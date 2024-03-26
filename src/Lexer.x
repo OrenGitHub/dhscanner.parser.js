@@ -87,7 +87,7 @@ import Location
 @KW_COND            = "cond"
 @KW_BODY            = \"body\"
 @KW_UPDATE          = \"update\"
-@KW_FALSE           = \"false\"
+@KW_FALSE           = false
 @KW_START           = \"start\"
 @KW_EXPRS           = "exprs"
 @KW_VALUE           = \"value\"
