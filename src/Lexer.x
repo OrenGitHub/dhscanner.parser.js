@@ -73,6 +73,7 @@ import Location
 @KW_LOC             = \"loc\"
 @KW_ARG             = "Arg"
 @KW_VAR             = "var"
+@KW_NULL            = null
 @KW_TEST            = \"test\"
 @KW_LINE            = \"line\"
 @KW_TRUE            = \"true\"
@@ -168,6 +169,7 @@ import Location
 @QUOTE = \"
 @ID = (@QUOTE)@LETTER(@LETTER_OR_DIGIT*)(@QUOTE)
 @QUOTED_INT = (@QUOTE)(@INT)(@QUOTE)
+@QUOTED_BOOL = (@QUOTE)(true)(@QUOTE)|(@QUOTE)(false)(@QUOTE)
 
 -- ***************
 -- *             *
@@ -218,6 +220,7 @@ tokens :-
 @KW_LOC             { lex' AlexRawToken_LOC             }
 @KW_ARG             { lex' AlexRawToken_ARG             }
 @KW_VAR             { lex' AlexRawToken_VAR             }
+@KW_NULL            { lex' AlexRawToken_NULL            }
 @KW_TEST            { lex' AlexRawToken_TEST            }
 @KW_LINE            { lex' AlexRawToken_LINE            }
 @KW_TRUE            { lex' AlexRawToken_TRUE            }
@@ -268,7 +271,8 @@ tokens :-
 -- *       *
 -- *********
 
-@QUOTED_INT { lex' AlexRawToken_QUOTED_INT }
+@QUOTED_INT  { lex' AlexRawToken_QUOTED_INT  }
+@QUOTED_BOOL { lex' AlexRawToken_QUOTED_BOOL }
 
 -- ***************
 -- *             *
@@ -399,6 +403,7 @@ data AlexRawToken
      | AlexRawToken_ARG             -- ^ Reserved Keyword
      | AlexRawToken_VAR             -- ^ Reserved Keyword
      | AlexRawToken_TEST            -- ^ Reserved Keyword
+     | AlexRawToken_NULL            -- ^ Reserved Keyword
      | AlexRawToken_LINE            -- ^ Reserved Keyword
      | AlexRawToken_TRUE            -- ^ Reserved Keyword
      | AlexRawToken_ARGS            -- ^ Reserved Keyword
@@ -449,6 +454,7 @@ data AlexRawToken
      -- *********
 
      | AlexRawToken_QUOTED_INT      -- ^ Reserved Keyword
+     | AlexRawToken_QUOTED_BOOL     -- ^ Reserved Keyword
 
      -- *************
      -- *           *

@@ -89,6 +89,7 @@ import Data.Map ( fromList )
 'loc'                   { AlexTokenTag AlexRawToken_LOC             _ }
 'Arg'                   { AlexTokenTag AlexRawToken_ARG             _ }
 'var'                   { AlexTokenTag AlexRawToken_VAR             _ }
+'null'                  { AlexTokenTag AlexRawToken_NULL            _ }
 'test'                  { AlexTokenTag AlexRawToken_TEST            _ }
 'line'                  { AlexTokenTag AlexRawToken_LINE            _ }
 'true'                  { AlexTokenTag AlexRawToken_TRUE            _ }
@@ -139,7 +140,8 @@ import Data.Map ( fromList )
 -- *       *
 -- *********
 
-QUOTED_INT { AlexTokenTag AlexRawToken_QUOTED_INT _ }
+QUOTED_INT  { AlexTokenTag AlexRawToken_QUOTED_INT  _ }
+QUOTED_BOOL { AlexTokenTag AlexRawToken_QUOTED_BOOL _ }
 
 -- ***************
 -- *             *
@@ -360,6 +362,29 @@ exp_int:
     Nothing
 }
 
+-- ************
+-- *          *
+-- * exp_bool *
+-- *          *
+-- ************
+exp_bool:
+'{'
+    'type' ':' 'Literal' ','
+    'value' ':' bool ','
+    'raw' ':' QUOTED_BOOL ','
+    'loc' ':' location
+'}'
+{
+    Nothing
+}
+
+-- ************
+-- *          *
+-- * exp_null *
+-- *          *
+-- ************
+exp_null: 'null' { Nothing }
+
 -- *******
 -- *     *
 -- * exp *
@@ -368,6 +393,7 @@ exp_int:
 exp:
 exp_int    { $1 } |
 exp_var    { $1 } |
+exp_bool   { $1 } |
 exp_binop  { $1 } |
 exp_assign { $1 }
 
@@ -475,7 +501,8 @@ stmt_if:
 stmt:
 stmt_if     { $1 } |
 stmt_for    { $1 } |
-stmt_assign { $1 }
+stmt_assign { $1 } |
+stmt_return { $1 }
 
 -- *********
 -- *       *
@@ -485,11 +512,13 @@ stmt_assign { $1 }
 stmts:
 '{'
     'type' ':' 'BlockStatement' ','
-    'body' ':' '[' commalistof(stmt) ']'
+    'body' ':' '[' commalistof(stmt) ']' ','
+    'loc' ':' location
 '}'
 {
     []
-}
+} |
+'null' { [] }
 
 -- ****************
 -- *              *
