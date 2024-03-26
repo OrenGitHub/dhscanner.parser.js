@@ -117,8 +117,9 @@ import Data.Map ( fromList )
 'Literal'               { AlexTokenTag AlexRawToken_LITERAL         _ }
 'Program'               { AlexTokenTag AlexRawToken_PROGRAM         _ }
 'operator'              { AlexTokenTag AlexRawToken_OPERATOR        _ }
+'alternate'             { AlexTokenTag AlexRawToken_ALTERNATE       _ }
+'consequent'            { AlexTokenTag AlexRawToken_CONSEQUENT      _ }
 'argument'              { AlexTokenTag AlexRawToken_ARGUMENT        _ }
-'Stmt_If'               { AlexTokenTag AlexRawToken_STMT_IF         _ }
 'Stmt_Echo'             { AlexTokenTag AlexRawToken_STMT_ECHO       _ }
 'Expr_Variable'         { AlexTokenTag AlexRawToken_EXPR_VAR        _ }
 'Expr_FuncCall'         { AlexTokenTag AlexRawToken_EXPR_CALL       _ }
@@ -156,6 +157,7 @@ QUOTED_INT { AlexTokenTag AlexRawToken_QUOTED_INT _ }
 -- *            *
 -- **************
 
+'IfStatement'     { AlexTokenTag AlexRawToken_STMT_IF     _ }
 'ForStatement'    { AlexTokenTag AlexRawToken_STMT_FOR    _ }
 'BlockStatement'  { AlexTokenTag AlexRawToken_STMT_BLOCK  _ }
 'ReturnStatement' { AlexTokenTag AlexRawToken_STMT_RETURN _ }
@@ -167,7 +169,8 @@ QUOTED_INT { AlexTokenTag AlexRawToken_QUOTED_INT _ }
 -- *************
 
 '<'  { AlexTokenTag AlexRawToken_OP_LT       _ }
-'='  { AlexTokenTag AlexRawToken_OP_EQ       _ }
+'==' { AlexTokenTag AlexRawToken_OP_EQ       _ }
+'='  { AlexTokenTag AlexRawToken_OP_ASSIGN   _ }
 '*'  { AlexTokenTag AlexRawToken_OP_TIMES    _ }
 '++' { AlexTokenTag AlexRawToken_OP_PLUSPLUS _ }
 
@@ -392,6 +395,7 @@ stmt_for:
 -- ************
 operator:
 '++' { Nothing } |
+'==' { Nothing } |
 '*'  { Nothing } |
 '<'  { Nothing } |
 '='  { Nothing }
@@ -446,12 +450,30 @@ stmt_assign:
 stmt_update { $1 } |
 exp_assign  { $1 }
 
+-- ***********
+-- *         *
+-- * stmt_if *
+-- *         *
+-- ***********
+stmt_if:
+'{'
+    'type' ':' 'IfStatement' ','
+    'test' ':' exp ','
+    'consequent' ':' stmts ','
+    'alternate' ':' stmts ','
+    'loc' ':' location
+'}'
+{
+    Nothing
+}
+
 -- ********
 -- *      *
 -- * stmt *
 -- *      *
 -- ********
 stmt:
+stmt_if     { $1 } |
 stmt_for    { $1 } |
 stmt_assign { $1 }
 

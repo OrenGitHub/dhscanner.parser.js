@@ -102,7 +102,8 @@ import Location
 @KW_PROGRAM         = \"Program\"
 @KW_OPERATOR        = \"operator\"
 @KW_ARGUMENT        = \"argument\"
-@KW_STMT_IF         = "Stmt_If"
+@KW_ALTERNATE       = \"alternate\"
+@KW_CONSEQUENT      = \"consequent\"
 @KW_STMT_ECHO       = "Stmt_Echo"
 @KW_EXPR_VAR        = "Expr_Variable"
 @KW_EXPR_CALL       = "Expr_FuncCall"
@@ -122,6 +123,7 @@ import Location
 -- *            *
 -- **************
 
+@KW_STMT_IF     = \"IfStatement\"
 @KW_STMT_FOR    = \"ForStatement\"
 @KW_STMT_BLOCK  = \"BlockStatement\"
 @KW_STMT_RETURN = \"ReturnStatement\"
@@ -143,7 +145,8 @@ import Location
 -- *************
 
 @KW_OP_LT       = \"\<\"
-@KW_OP_EQ       = \"=\"
+@KW_OP_EQ       = \"==\"
+@KW_OP_ASSIGN   = \"=\"
 @KW_OP_TIMES    = \"\*\"
 @KW_OP_PLUSPLUS = \"\+\+\"
 
@@ -243,6 +246,8 @@ tokens :-
 @KW_LITERAL         { lex' AlexRawToken_LITERAL         }
 @KW_PROGRAM         { lex' AlexRawToken_PROGRAM         }
 @KW_OPERATOR        { lex' AlexRawToken_OPERATOR        }
+@KW_ALTERNATE       { lex' AlexRawToken_ALTERNATE       }
+@KW_CONSEQUENT      { lex' AlexRawToken_CONSEQUENT      }
 @KW_ARGUMENT        { lex' AlexRawToken_ARGUMENT        }
 @KW_STMT_IF         { lex' AlexRawToken_STMT_IF         }
 @KW_STMT_ECHO       { lex' AlexRawToken_STMT_ECHO       }
@@ -281,6 +286,7 @@ tokens :-
 -- *            *
 -- **************
 
+@KW_STMT_IF       { lex' AlexRawToken_STMT_IF       }
 @KW_STMT_FOR      { lex' AlexRawToken_STMT_FOR      }
 @KW_STMT_BLOCK    { lex' AlexRawToken_STMT_BLOCK    }
 @KW_STMT_RETURN   { lex' AlexRawToken_STMT_RETURN   }
@@ -294,6 +300,7 @@ tokens :-
 
 @KW_OP_LT       { lex' AlexRawToken_OP_LT       }
 @KW_OP_EQ       { lex' AlexRawToken_OP_EQ       }
+@KW_OP_ASSIGN   { lex' AlexRawToken_OP_ASSIGN   }
 @KW_OP_TIMES    { lex' AlexRawToken_OP_TIMES    }
 @KW_OP_PLUSPLUS { lex' AlexRawToken_OP_PLUSPLUS }
 
@@ -419,8 +426,9 @@ data AlexRawToken
      | AlexRawToken_LITERAL         -- ^ Reserved Keyword
      | AlexRawToken_PROGRAM         -- ^ Reserved Keyword
      | AlexRawToken_OPERATOR        -- ^ Reserved Keyword
+     | AlexRawToken_ALTERNATE       -- ^ Reserved Keyword
+     | AlexRawToken_CONSEQUENT      -- ^ Reserved Keyword
      | AlexRawToken_ARGUMENT        -- ^ Reserved Keyword
-     | AlexRawToken_STMT_IF         -- ^ Reserved Keyword
      | AlexRawToken_STMT_ECHO       -- ^ Reserved Keyword
      | AlexRawToken_EXPR_VAR        -- ^ Reserved Keyword
      | AlexRawToken_EXPR_CALL       -- ^ Reserved Keyword
@@ -450,6 +458,7 @@ data AlexRawToken
 
      | AlexRawToken_OP_LT           -- ^ Reserved Keyword
      | AlexRawToken_OP_EQ           -- ^ Reserved Keyword
+     | AlexRawToken_OP_ASSIGN       -- ^ Reserved Keyword
      | AlexRawToken_OP_TIMES        -- ^ Reserved Keyword
      | AlexRawToken_OP_PLUSPLUS     -- ^ Reserved Keyword
 
@@ -469,6 +478,7 @@ data AlexRawToken
      -- *            *
      -- **************
 
+     | AlexRawToken_STMT_IF         -- ^ Reserved Keyword
      | AlexRawToken_STMT_FOR        -- ^ Reserved Keyword
      | AlexRawToken_STMT_BLOCK      -- ^ Reserved Keyword
      | AlexRawToken_STMT_RETURN     -- ^ Reserved Keyword
