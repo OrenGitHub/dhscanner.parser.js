@@ -129,6 +129,7 @@ import Data.Map ( fromList )
 'expression'            { AlexTokenTag AlexRawToken_EXPRESSION      _ }
 'async'                 { AlexTokenTag AlexRawToken_ASYNC           _ }
 'callee'                { AlexTokenTag AlexRawToken_CALLEE          _ }
+'sourceType'            { AlexTokenTag AlexRawToken_SRC_TYPE        _ }
 'Stmt_Echo'             { AlexTokenTag AlexRawToken_STMT_ECHO       _ }
 'Expr_Variable'         { AlexTokenTag AlexRawToken_EXPR_VAR        _ }
 'Stmt_Expr'             { AlexTokenTag AlexRawToken_STMT_EXPR       _ }
@@ -215,7 +216,13 @@ commalistof(a): a { [$1] } | a ',' commalistof(a) { $1:$3 }
 -- * Ast root: program *
 -- *                   *
 -- *********************
-program: '{' 'type' ':' 'Program' ',' 'body' ':' '[' commalistof(dec_or_stmt) ']' '}'
+program:
+'{'
+    'type' ':' 'Program' ','
+    'body' ':' '[' commalistof(dec_or_stmt) ']' ','
+    'sourceType' ':' ID ','
+    'loc' ':' location
+'}'
 {
     Ast.Root
     {

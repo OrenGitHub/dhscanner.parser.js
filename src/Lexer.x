@@ -110,6 +110,7 @@ import Location
 @KW_CALLEE          = \"callee\"
 @KW_ASYNC           = \"async\"
 @KW_GENERATOR       = \"generator\"
+@KW_SRC_TYPE        = \"sourceType\"
 @KW_EXPRESSION      = \"expression\"
 @KW_ALTERNATE       = \"alternate\"
 @KW_CONSEQUENT      = \"consequent\"
@@ -269,6 +270,7 @@ tokens :-
 @KW_CALLEE          { lex' AlexRawToken_CALLEE          }
 @KW_ASYNC           { lex' AlexRawToken_ASYNC           }
 @KW_EXPRESSION      { lex' AlexRawToken_EXPRESSION      }
+@KW_SRC_TYPE        { lex' AlexRawToken_SRC_TYPE        }
 @KW_GENERATOR       { lex' AlexRawToken_GENERATOR       }
 @KW_STMT_IF         { lex' AlexRawToken_STMT_IF         }
 @KW_STMT_ECHO       { lex' AlexRawToken_STMT_ECHO       }
@@ -462,6 +464,7 @@ data AlexRawToken
      | AlexRawToken_CALLEE          -- ^ Reserved Keyword
      | AlexRawToken_ASYNC           -- ^ Reserved Keyword
      | AlexRawToken_EXPRESSION      -- ^ Reserved Keyword
+     | AlexRawToken_SRC_TYPE        -- ^ Reserved Keyword
      | AlexRawToken_GENERATOR       -- ^ Reserved Keyword
      | AlexRawToken_STMT_ECHO       -- ^ Reserved Keyword
      | AlexRawToken_EXPR_VAR        -- ^ Reserved Keyword
