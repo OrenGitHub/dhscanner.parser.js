@@ -121,12 +121,13 @@ import Data.Map ( fromList )
 'alternate'             { AlexTokenTag AlexRawToken_ALTERNATE       _ }
 'consequent'            { AlexTokenTag AlexRawToken_CONSEQUENT      _ }
 'argument'              { AlexTokenTag AlexRawToken_ARGUMENT        _ }
+'arguments'             { AlexTokenTag AlexRawToken_ARGUMENTS       _ }
 'generator'             { AlexTokenTag AlexRawToken_GENERATOR       _ }
 'expression'            { AlexTokenTag AlexRawToken_EXPRESSION      _ }
 'async'                 { AlexTokenTag AlexRawToken_ASYNC           _ }
+'callee'                { AlexTokenTag AlexRawToken_CALLEE          _ }
 'Stmt_Echo'             { AlexTokenTag AlexRawToken_STMT_ECHO       _ }
 'Expr_Variable'         { AlexTokenTag AlexRawToken_EXPR_VAR        _ }
-'Expr_FuncCall'         { AlexTokenTag AlexRawToken_EXPR_CALL       _ }
 'Stmt_Expr'             { AlexTokenTag AlexRawToken_STMT_EXPR       _ }
 'Scalar_Int'            { AlexTokenTag AlexRawToken_SCALAR_INT      _ }
 'Identifier'            { AlexTokenTag AlexRawToken_IDENTIFIER      _ }
@@ -152,6 +153,7 @@ QUOTED_BOOL { AlexTokenTag AlexRawToken_QUOTED_BOOL _ }
 -- *             *
 -- ***************
 
+'CallExpression'   { AlexTokenTag AlexRawToken_EXPR_CALL   _ }
 'BinaryExpression' { AlexTokenTag AlexRawToken_EXPR_BINOP  _ }
 'UpdateExpression' { AlexTokenTag AlexRawToken_EXPR_UPDATE _ }
 'AssignExpression' { AlexTokenTag AlexRawToken_EXPR_ASSIGN _ }
@@ -409,6 +411,22 @@ exp_bool:
 -- ************
 exp_null: 'null' { Nothing }
 
+-- ************
+-- *          *
+-- * exp_call *
+-- *          *
+-- ************
+exp_call:
+'{'
+    'type' ':' 'CallExpression' ','
+    'callee' ':' exp ','
+    'arguments' ':' '[' commalistof(exp) ']' ','
+    'loc' ':' location
+'}'
+{
+    Nothing
+}
+
 -- *******
 -- *     *
 -- * exp *
@@ -418,6 +436,7 @@ exp:
 exp_int    { $1 } |
 exp_var    { $1 } |
 exp_bool   { $1 } |
+exp_call   { $1 } |
 exp_binop  { $1 } |
 exp_assign { $1 }
 

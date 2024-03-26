@@ -103,6 +103,8 @@ import Location
 @KW_PROGRAM         = \"Program\"
 @KW_OPERATOR        = \"operator\"
 @KW_ARGUMENT        = \"argument\"
+@KW_ARGUMENTS       = \"arguments\"
+@KW_CALLEE          = \"callee\"
 @KW_ASYNC           = \"async\"
 @KW_GENERATOR       = \"generator\"
 @KW_EXPRESSION      = \"expression\"
@@ -110,7 +112,6 @@ import Location
 @KW_CONSEQUENT      = \"consequent\"
 @KW_STMT_ECHO       = "Stmt_Echo"
 @KW_EXPR_VAR        = "Expr_Variable"
-@KW_EXPR_CALL       = "Expr_FuncCall"
 @KW_STMT_EXPR       = "Stmt_Expression"
 @KW_SCALAR_INT      = "Scalar_Int"
 @KW_IDENTIFIER      = \"Identifier\"
@@ -139,6 +140,7 @@ import Location
 -- *             *
 -- ***************
 
+@KW_EXPR_CALL   = \"CallExpression\"
 @KW_EXPR_BINOP  = \"BinaryExpression\"
 @KW_EXPR_UPDATE = \"UpdateExpression\"
 @KW_EXPR_ASSIGN = \"AssignmentExpression\"
@@ -256,6 +258,8 @@ tokens :-
 @KW_ALTERNATE       { lex' AlexRawToken_ALTERNATE       }
 @KW_CONSEQUENT      { lex' AlexRawToken_CONSEQUENT      }
 @KW_ARGUMENT        { lex' AlexRawToken_ARGUMENT        }
+@KW_ARGUMENTS       { lex' AlexRawToken_ARGUMENTS       }
+@KW_CALLEE          { lex' AlexRawToken_CALLEE          }
 @KW_ASYNC           { lex' AlexRawToken_ASYNC           }
 @KW_EXPRESSION      { lex' AlexRawToken_EXPRESSION      }
 @KW_GENERATOR       { lex' AlexRawToken_GENERATOR       }
@@ -287,6 +291,7 @@ tokens :-
 -- *             *
 -- ***************
 
+@KW_EXPR_CALL   { lex' AlexRawToken_EXPR_CALL   }
 @KW_EXPR_BINOP  { lex' AlexRawToken_EXPR_BINOP  }
 @KW_EXPR_UPDATE { lex' AlexRawToken_EXPR_UPDATE }
 @KW_EXPR_ASSIGN { lex' AlexRawToken_EXPR_ASSIGN }
@@ -442,12 +447,13 @@ data AlexRawToken
      | AlexRawToken_ALTERNATE       -- ^ Reserved Keyword
      | AlexRawToken_CONSEQUENT      -- ^ Reserved Keyword
      | AlexRawToken_ARGUMENT        -- ^ Reserved Keyword
+     | AlexRawToken_ARGUMENTS       -- ^ Reserved Keyword
+     | AlexRawToken_CALLEE          -- ^ Reserved Keyword
      | AlexRawToken_ASYNC           -- ^ Reserved Keyword
      | AlexRawToken_EXPRESSION      -- ^ Reserved Keyword
      | AlexRawToken_GENERATOR       -- ^ Reserved Keyword
      | AlexRawToken_STMT_ECHO       -- ^ Reserved Keyword
      | AlexRawToken_EXPR_VAR        -- ^ Reserved Keyword
-     | AlexRawToken_EXPR_CALL       -- ^ Reserved Keyword
      | AlexRawToken_STMT_EXPR       -- ^ Reserved Keyword
      | AlexRawToken_SCALAR_INT      -- ^ Reserved Keyword
      | AlexRawToken_IDENTIFIER      -- ^ Reserved Keyword
@@ -485,6 +491,7 @@ data AlexRawToken
      -- *             *
      -- ***************
 
+     | AlexRawToken_EXPR_CALL       -- ^ Reserved Keyword
      | AlexRawToken_EXPR_BINOP      -- ^ Reserved Keyword
      | AlexRawToken_EXPR_UPDATE     -- ^ Reserved Keyword
      | AlexRawToken_EXPR_ASSIGN     -- ^ Reserved Keyword
