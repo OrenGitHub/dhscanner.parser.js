@@ -85,10 +85,13 @@ import Data.Map ( fromList )
 
 'id'                    { AlexTokenTag AlexRawToken_KWID            _ }
 'end'                   { AlexTokenTag AlexRawToken_END             _ }
+'raw'                   { AlexTokenTag AlexRawToken_RAW             _ }
 'loc'                   { AlexTokenTag AlexRawToken_LOC             _ }
 'Arg'                   { AlexTokenTag AlexRawToken_ARG             _ }
 'var'                   { AlexTokenTag AlexRawToken_VAR             _ }
+'test'                  { AlexTokenTag AlexRawToken_TEST            _ }
 'line'                  { AlexTokenTag AlexRawToken_LINE            _ }
+'true'                  { AlexTokenTag AlexRawToken_TRUE            _ }
 'args'                  { AlexTokenTag AlexRawToken_ARGS            _ }
 'name'                  { AlexTokenTag AlexRawToken_NAME            _ }
 'expr'                  { AlexTokenTag AlexRawToken_EXPR            _ }
@@ -99,6 +102,8 @@ import Data.Map ( fromList )
 'init'                  { AlexTokenTag AlexRawToken_INIT            _ }
 'cond'                  { AlexTokenTag AlexRawToken_COND            _ }
 'body'                  { AlexTokenTag AlexRawToken_BODY            _ }
+'update'                { AlexTokenTag AlexRawToken_UPDATE          _ }
+'false'                 { AlexTokenTag AlexRawToken_FALSE           _ }
 'start'                 { AlexTokenTag AlexRawToken_START           _ }
 'exprs'                 { AlexTokenTag AlexRawToken_EXPRS           _ }
 'value'                 { AlexTokenTag AlexRawToken_VALUE           _ }
@@ -106,23 +111,65 @@ import Data.Map ( fromList )
 'stmts'                 { AlexTokenTag AlexRawToken_STMTS           _ }
 'array'                 { AlexTokenTag AlexRawToken_ARRAY           _ }
 'Param'                 { AlexTokenTag AlexRawToken_PARAM           _ }
+'prefix'                { AlexTokenTag AlexRawToken_PREFIX          _ }
+'params'                { AlexTokenTag AlexRawToken_PARAMS          _ }
 'column'                { AlexTokenTag AlexRawToken_COLUMN          _ }
+'Literal'               { AlexTokenTag AlexRawToken_LITERAL         _ }
 'Program'               { AlexTokenTag AlexRawToken_PROGRAM         _ }
+'operator'              { AlexTokenTag AlexRawToken_OPERATOR        _ }
+'argument'              { AlexTokenTag AlexRawToken_ARGUMENT        _ }
 'Stmt_If'               { AlexTokenTag AlexRawToken_STMT_IF         _ }
-'Stmt_For'              { AlexTokenTag AlexRawToken_STMT_FOR        _ }
 'Stmt_Echo'             { AlexTokenTag AlexRawToken_STMT_ECHO       _ }
 'Expr_Variable'         { AlexTokenTag AlexRawToken_EXPR_VAR        _ }
 'Expr_FuncCall'         { AlexTokenTag AlexRawToken_EXPR_CALL       _ }
 'Stmt_Expr'             { AlexTokenTag AlexRawToken_STMT_EXPR       _ }
 'Scalar_Int'            { AlexTokenTag AlexRawToken_SCALAR_INT      _ }
 'Identifier'            { AlexTokenTag AlexRawToken_IDENTIFIER      _ }
-'Stmt_Return'           { AlexTokenTag AlexRawToken_STMT_RETURN     _ }
 'returnType'            { AlexTokenTag AlexRawToken_RETURN_TYPE     _ }
 'Stmt_Function'         { AlexTokenTag AlexRawToken_STMT_FUNCTION   _ }
 'FunctionDeclaration'   { AlexTokenTag AlexRawToken_FUNCTION_DEC    _ }
 'Expr_ConstFetch'       { AlexTokenTag AlexRawToken_EXPR_CONST_GET  _ }
 'Expr_BinaryOp_Plus'    { AlexTokenTag AlexRawToken_EXPR_BINOP_PLUS _ }
 'Expr_BinaryOp_Smaller' { AlexTokenTag AlexRawToken_EXPR_BINOP_LT   _ }
+
+-- *********
+-- *       *
+-- * other *
+-- *       *
+-- *********
+
+QUOTED_INT { AlexTokenTag AlexRawToken_QUOTED_INT _ }
+
+-- ***************
+-- *             *
+-- * expressions *
+-- *             *
+-- ***************
+
+'BinaryExpression' { AlexTokenTag AlexRawToken_EXPR_BINOP  _ }
+'UpdateExpression' { AlexTokenTag AlexRawToken_EXPR_UPDATE _ }
+'AssignExpression' { AlexTokenTag AlexRawToken_EXPR_ASSIGN _ }
+
+-- **************
+-- *            *
+-- * statements *
+-- *            *
+-- **************
+
+'ForStatement'    { AlexTokenTag AlexRawToken_STMT_FOR    _ }
+'BlockStatement'  { AlexTokenTag AlexRawToken_STMT_BLOCK  _ }
+'ReturnStatement' { AlexTokenTag AlexRawToken_STMT_RETURN _ }
+
+-- *************
+-- *           *
+-- * operators *
+-- *           *
+-- *************
+
+'<'  { AlexTokenTag AlexRawToken_OP_LT       _ }
+'='  { AlexTokenTag AlexRawToken_OP_EQ       _ }
+'*'  { AlexTokenTag AlexRawToken_OP_TIMES    _ }
+'++' { AlexTokenTag AlexRawToken_OP_PLUSPLUS _ }
 
 -- ****************************
 -- *                          *
@@ -159,7 +206,8 @@ program: '{' 'type' ':' 'Program' ',' 'body' ':' '[' dec_function ']' '}'
 -- * parametrized lists *
 -- *                    *
 -- **********************
-listof(a): a { [$1] } | a listof(a) { $1:$2 }
+listof(a):      a { [$1] } | a          listof(a) { $1:$2 }
+commalistof(a): a { [$1] } | a ',' commalistof(a) { $1:$3 }
 
 -- ********
 -- *      *
@@ -215,11 +263,210 @@ identifier:
     'loc' ':' location
 '}'
 {
+    Nothing
+}
+
+-- *********
+-- *       *
+-- * param *
+-- *       *
+-- *********
+param:
+'{'
+    'type' ':' 'Identifier' ','
+    'name' ':' ID ','
+    'loc' ':' location
+'}'
+{
     Token.Named
     {
         Token.content = tokIDValue $8,
         Token.location = $12
     } 
+}
+
+-- ***********
+-- *         *
+-- * exp_var *
+-- *         *
+-- ***********
+exp_var: var { $1 }
+
+-- *************
+-- *           *
+-- * exp_binop *
+-- *           *
+-- *************
+exp_binop:
+'{'
+    'type' ':' 'BinaryExpression' ','
+    'operator' ':' operator ','
+    'left' ':' exp ','
+    'right' ':' exp ','
+    'loc' ':' location
+'}'
+{
+    Nothing
+}
+
+-- *******************
+-- *                 *
+-- * simple variable *
+-- *                 *
+-- *******************
+var_simple: identifier { $1 }
+
+-- ************
+-- *          *
+-- * variable *
+-- *          *
+-- ************
+var:
+var_simple { $1 }
+
+-- **************
+-- *            *
+-- * exp_assign *
+-- *            *
+-- **************
+exp_assign:
+'{'
+    'type' ':' 'AssignExpression' ','
+    'operator' ':' operator ','
+    'left' ':' var ','
+    'right' ':' exp ','
+    'loc' ':' location
+'}'
+{
+    Nothing
+}
+
+-- ***********
+-- *         *
+-- * exp_int *
+-- *         *
+-- ***********
+exp_int:
+'{'
+    'type' ':' 'Literal' ','
+    'value' ':' INT ','
+    'raw' ':' QUOTED_INT ','
+    'loc' ':' location
+'}'
+{
+    Nothing
+}
+
+-- *******
+-- *     *
+-- * exp *
+-- *     *
+-- *******
+exp:
+exp_int    { $1 } |
+exp_var    { $1 } |
+exp_binop  { $1 } |
+exp_assign { $1 }
+
+-- ************
+-- *          *
+-- * stmt_for *
+-- *          *
+-- ************
+stmt_for:
+'{'
+    'type' ':' 'ForStatement' ','
+    'init' ':' exp ','
+    'test' ':' exp ','
+    'update' ':' stmt ','
+    'body' ':' stmts
+'}'
+{
+    Nothing
+}
+
+-- ************
+-- *          *
+-- * operator *
+-- *          *
+-- ************
+operator:
+'++' { Nothing } |
+'*'  { Nothing } |
+'<'  { Nothing } |
+'='  { Nothing }
+
+-- ********
+-- *      *
+-- * bool *
+-- *      *
+-- ********
+bool:
+'true'  { True  } |
+'false' { False }
+
+-- ***************
+-- *             *
+-- * stmt_return *
+-- *             *
+-- ***************
+stmt_return:
+'{'
+    'type' ':' 'ReturnStatement' ','
+    'argument' ':' exp ','
+    'loc' ':' location
+'}'
+{
+    Nothing
+}
+
+-- ***************
+-- *             *
+-- * stmt_update *
+-- *             *
+-- ***************
+stmt_update:
+'{'
+    'type' ':' 'UpdateExpression' ','
+    'operator' ':' operator ','
+    'argument' ':' identifier ','
+    'prefix' ':' bool ','
+    'loc' ':' location
+'}'
+{
+    Nothing
+}
+
+-- ***************
+-- *             *
+-- * stmt_assign *
+-- *             *
+-- ***************
+stmt_assign:
+stmt_update { $1 } |
+exp_assign  { $1 }
+
+-- ********
+-- *      *
+-- * stmt *
+-- *      *
+-- ********
+stmt:
+stmt_for    { $1 } |
+stmt_assign { $1 }
+
+-- *********
+-- *       *
+-- * stmts *
+-- *       *
+-- *********
+stmts:
+'{'
+    'type' ':' 'BlockStatement' ','
+    'body' ':' '[' commalistof(stmt) ']'
+'}'
+{
+    []
 }
 
 -- ****************
@@ -229,382 +476,12 @@ identifier:
 -- ****************
 dec_function: '{'
     'type' ':' 'FunctionDeclaration' ','
-    'id' ':' identifier
+    'id' ':' identifier ','
+    'params' ':' '[' commalistof(param) ']' ','
+    'body' ':' stmts
 '}'
 {
     Left "MMM"
-}
-
--- **********************
--- *                    *
--- * dec_function_attrs *
--- *                    *
--- **********************
-dec_function_attrs: listof(dec_function_attr) { $1 }
-
--- *********************
--- *                   *
--- * dec_function_attr *
--- *                   *
--- *********************
-dec_function_attr:
-dec_func_attr_name       { Left  (Left  $1) } |
-dec_func_attr_params     { Left  (Right $1) } |
-dec_func_attr_returnType { Right (Left  $1) } |
-dec_func_attr_body       { Right (Right $1) }
-
--- **********************
--- *                    *
--- * dec_func_attr_name *
--- *                    *
--- **********************
-dec_func_attr_name: 'name' ':' 'Identifier' loc '(' 'name' ':' ID ')'
-{
-    Token.FuncName $ Token.Named
-    {
-        Token.content = tokIDValue $8,
-        Token.location = $4
-    }
-}
-
--- *******************
--- *                 *
--- * dec_func_params *
--- *                 *
--- *******************
-dec_func_attr_params: 'array' '(' numbered_params ')' { catMaybes $3 }
-
--- *******************
--- *                 *
--- * numbered_params *
--- *                 *
--- *******************
-numbered_params: listof(numbered_param) { $1 }
-
--- ******************
--- *                *
--- * numbered_param *
--- *                *
--- ******************
-numbered_param: INT ':' param { $3 }
-
--- *********
--- *       *
--- * param *
--- *       *
--- *********
-param: 'Param' loc '(' listof(param_attr) ')' { paramify $4 $2 }
-
--- **************
--- *            *
--- * param_attr *
--- *            *
--- **************
-param_attr:
-param_attr_name { Left  $1 } |
-param_attr_type { Right $1 }
-
--- *******************
--- *                 *
--- * param_attr_name *
--- *                 *
--- *******************
-param_attr_name: 'var' ':' 'Expr_Variable' loc '(' 'name' ':' ID ')'
-{
-    Token.ParamName $ Token.Named
-    {
-        Token.content = tokIDValue $8,
-        Token.location = $4
-    }    
-}
-
--- *******************
--- *                 *
--- * param_attr_type *
--- *                 *
--- *******************
-param_attr_type: 'type' ':' 'Identifier' loc '(' 'name' ':' ID ')'
-{
-    Token.NominalTy $ Token.Named
-    {
-        Token.content = tokIDValue $8,
-        Token.location = $4
-    }    
-}
-
--- ****************************
--- *                          *
--- * dec_func_attr_returnType *
--- *                          *
--- ****************************
-dec_func_attr_returnType: 'returnType' ':' 'Identifier' loc '(' 'name' ':' ID ')'
-{
-    Token.NominalTy $ Token.Named
-    {
-        Token.content = tokIDValue $8,
-        Token.location = $4
-    }
-}
-
--- **********************
--- *                    *
--- * dec_func_attr_body *
--- *                    *
--- **********************
-dec_func_attr_body: 'stmts' ':' stmts { $3 }
-
--- *********
--- *       *
--- * stmts *
--- *       *
--- *********
-stmts: 'array' '(' numbered_stmts ')' { $3 }
-
--- ******************
--- *                *
--- * numbered_stmts *
--- *                *
--- ******************
-numbered_stmts: numbered_stmt numbered_stmts { $1:$2 } | numbered_stmt { [$1] }
-
--- *****************
--- *               *
--- * numbered_stmt *
--- *               *
--- *****************
-numbered_stmt: INT ':' stmt { $3 }
-
--- ********
--- *      *
--- * stmt *
--- *      *
--- ********
-stmt:
-stmt_if     { $1 } | 
-stmt_for    { $1 } |
-stmt_return { $1 }
--- stmt_echo   { $1 }
-
--- ***********
--- *         *
--- * stmt_if *
--- *         *
--- ***********
-stmt_if: 'Stmt_If' loc '(' 'cond' ':' exp 'stmts' ':' stmts ')'
-{
-    Ast.StmtIf $ Ast.StmtIfContent
-    {
-        Ast.stmtIfCond = $6,
-        Ast.stmtIfBody = $9,
-        Ast.stmtIfLocation = $2
-    }
-}
-
--- ***********
--- *         *
--- * stmt_if *
--- *         *
--- ***********
-stmt_echo: 'Stmt_Echo' loc '(' 'exprs' ':' exps ')' { Nothing }
-
--- ***************
--- *             *
--- * stmt_return *
--- *             *
--- ***************
-stmt_return: 'Stmt_Return' loc '(' 'expr' ':' exp ')'
-{
-    Ast.StmtReturn $ Ast.StmtReturnContent
-    {
-        Ast.stmtReturnValue = Just $6,
-        Ast.stmtReturnLocation = $2
-    }
-}
-
--- ********
--- *      *
--- * exps *
--- *      *
--- ********
-exps: 'array' '(' numbered_exps ')' { $3 }
-
--- *****************
--- *               *
--- * numbered_exps *
--- *               *
--- *****************
-numbered_exps: numbered_exp numbered_exps { $1:$2 } | numbered_exp { [$1] }
-
--- ****************
--- *              *
--- * numbered_exp *
--- *              *
--- ****************
-numbered_exp: INT ':' exp { $3 }
-
--- *******
--- *     *
--- * exp *
--- *     *
--- *******
-exp:
-exp_int   { $1 } |
-exp_bool  { $1 } |
-exp_binop { $1 } |
-exp_var   { $1 }
-
--- ***********
--- *         *
--- * exp_int *
--- *         *
--- ***********
-exp_int: 'Scalar_Int' loc '(' 'value' ':' INT ')'
-{
-    Ast.ExpInt $ Ast.ExpIntContent $ Token.ConstInt
-    {
-        Token.constIntValue = tokIntValue $6,
-        Token.constIntLocation = $2
-    }
-}
-
--- ************
--- *          *
--- * exp_bool *
--- *          *
--- ************
-exp_bool:
-'Expr_ConstFetch' loc '(' 'name' ':' 'Name' loc '(' 'name' ':' ID ')' ')'
-{
-    Ast.ExpBool $ Ast.ExpBoolContent $ Token.ConstBool
-    {
-        Token.constBoolValue = True,
-        Token.constBoolLocation = $2
-    }
-}
- 
--- ***********
--- *         *
--- * exp_var *
--- *         *
--- ***********
-exp_var: 'Expr_Variable' loc '(' 'name' ':' ID ')'
-{
-    Ast.ExpVar $ Ast.ExpVarContent $ Ast.VarSimple $ Token.VarName $ Token.Named
-    {
-        Token.content = tokIDValue $6,
-        Token.location = $2
-    }
-}
-
--- *************
--- *           *
--- * exp_binop *
--- *           *
--- *************
-exp_binop: 'Expr_BinaryOp_Smaller' loc '(' 'left' ':' exp 'right' ':' exp ')' { $6 } 
-
--- ************
--- *          *
--- * exp_call *
--- *          *
--- ************
-exp_call: 
-'Expr_FuncCall' loc '(' 'name' ':' 'Name' loc '(' 'name' ':' ID ')' 'args' ':' args ')'
-{
-    Nothing
-}
-
--- ********
--- *      *
--- * args *
--- *      *
--- ********
-args: 'array' '(' numbered_args ')' { $3 }
-
--- *****************
--- *               *
--- * numbered_args *
--- *               *
--- *****************
-numbered_args: numbered_arg numbered_args { $1:$2 } | numbered_arg { [$1] }
-
--- ****************
--- *              *
--- * numbered_arg *
--- *              *
--- ****************
-numbered_arg: INT ':' arg { $3 }
-
--- *******
--- *     *
--- * arg *
--- *     *
--- *******
-arg: 'Arg' loc '(' arg_attrs ')'
-{
-    catMaybes $4
-}
-
--- *************
--- *           *
--- * arg_attrs *
--- *           *
--- *************
-arg_attrs: arg_attr arg_attrs { $1:$2 } | arg_attr { [$1] }
-
--- ************
--- *          *
--- * arg_attr *
--- *          *
--- ************
-arg_attr:
-arg_attr_value  { Just $1 } |
-arg_attr_ignore { Nothing }
-
--- ******************
--- *                *
--- * arg_attr_value *
--- *                *
--- ******************
-arg_attr_value: 'value' ':' exp { $3 }
-
--- *******************
--- *                 *
--- * arg_attr_ignore *
--- *                 *
--- *******************
-arg_attr_ignore: ID ':' ID { Nothing }
-
--- ************
--- *          *
--- * stmt_for *
--- *          *
--- ************
-stmt_for: 'Stmt_For' loc '(' 'init' ':' stmts 'cond' ':' exps 'loop' ':' exp 'stmts' ':' stmts ')'
-{
-    Ast.StmtWhile $ Ast.StmtWhileContent
-    {
-        Ast.stmtWhileCond = $12,
-        Ast.stmtWhileBody = $15,
-        Ast.stmtWhileLocation = $2
-    }
-}
-
--- *******
--- *     *
--- * loc *
--- *     *
--- *******
-loc: '[' INT ':' INT '-' INT ':' INT ']'
-{
-    Location
-    {
-        Location.filename = "",
-        lineStart = tokIntValue $2,
-        colStart = tokIntValue $4,
-        lineEnd = tokIntValue $6,
-        colEnd = tokIntValue $8
-    }
 }
 
 {
