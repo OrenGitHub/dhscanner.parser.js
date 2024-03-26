@@ -57,7 +57,7 @@ import Data.Map ( fromList )
 -- ***************
 -- *             *
 -- * parentheses *
--- *             *
+
 -- ***************
 
 '('    { AlexTokenTag AlexRawToken_LPAREN _ }
@@ -121,6 +121,9 @@ import Data.Map ( fromList )
 'alternate'             { AlexTokenTag AlexRawToken_ALTERNATE       _ }
 'consequent'            { AlexTokenTag AlexRawToken_CONSEQUENT      _ }
 'argument'              { AlexTokenTag AlexRawToken_ARGUMENT        _ }
+'generator'             { AlexTokenTag AlexRawToken_GENERATOR       _ }
+'expression'            { AlexTokenTag AlexRawToken_EXPRESSION      _ }
+'async'                 { AlexTokenTag AlexRawToken_ASYNC           _ }
 'Stmt_Echo'             { AlexTokenTag AlexRawToken_STMT_ECHO       _ }
 'Expr_Variable'         { AlexTokenTag AlexRawToken_EXPR_VAR        _ }
 'Expr_FuncCall'         { AlexTokenTag AlexRawToken_EXPR_CALL       _ }
@@ -159,10 +162,11 @@ QUOTED_BOOL { AlexTokenTag AlexRawToken_QUOTED_BOOL _ }
 -- *            *
 -- **************
 
-'IfStatement'     { AlexTokenTag AlexRawToken_STMT_IF     _ }
-'ForStatement'    { AlexTokenTag AlexRawToken_STMT_FOR    _ }
-'BlockStatement'  { AlexTokenTag AlexRawToken_STMT_BLOCK  _ }
-'ReturnStatement' { AlexTokenTag AlexRawToken_STMT_RETURN _ }
+'IfStatement'         { AlexTokenTag AlexRawToken_STMT_IF     _ }
+'ForStatement'        { AlexTokenTag AlexRawToken_STMT_FOR    _ }
+'BlockStatement'      { AlexTokenTag AlexRawToken_STMT_BLOCK  _ }
+'ReturnStatement'     { AlexTokenTag AlexRawToken_STMT_RETURN _ }
+'ExpressionStatement' { AlexTokenTag AlexRawToken_STMT_EXP    _ }
 
 -- *************
 -- *           *
@@ -192,20 +196,6 @@ ID     { AlexTokenTag (AlexRawToken_ID  id) _ }
 -- *************************
 %%
 
--- *********************
--- *                   *
--- * Ast root: program *
--- *                   *
--- *********************
-program: '{' 'type' ':' 'Program' ',' 'body' ':' '[' dec_function ']' '}'
-{
-    Ast.Root
-    {
-        Ast.filename = "DDD",
-        actualAst = []
-    }
-}
-
 -- **********************
 -- *                    *
 -- * parametrized lists *
@@ -214,19 +204,28 @@ program: '{' 'type' ':' 'Program' ',' 'body' ':' '[' dec_function ']' '}'
 listof(a):      a { [$1] } | a          listof(a) { $1:$2 }
 commalistof(a): a { [$1] } | a ',' commalistof(a) { $1:$3 }
 
--- ********
--- *      *
--- * decs *
--- *      *
--- ********
-decs: listof(numbered_dec) { $1 }
+-- *********************
+-- *                   *
+-- * Ast root: program *
+-- *                   *
+-- *********************
+program: '{' 'type' ':' 'Program' ',' 'body' ':' '[' commalistof(dec_or_stmt) ']' '}'
+{
+    Ast.Root
+    {
+        Ast.filename = "DDD",
+        actualAst = []
+    }
+}
 
--- ****************
--- *              *
--- * numbered_dec *
--- *              *
--- ****************
-numbered_dec: INT ':' dec { $3 }
+-- ***************
+-- *             *
+-- * dec or stmt *
+-- *             *
+-- ***************
+dec_or_stmt:
+dec  { Left  $1 } |
+stmt { Right $1 }
 
 -- *******
 -- *     *
@@ -256,6 +255,15 @@ location:
     }
 }
 
+-- ************
+-- *          *
+-- * token ID *
+-- *          *
+-- ************
+tokenID:
+ID      { Nothing } |
+'start' { Nothing }
+
 -- **************
 -- *            *
 -- * identifier *
@@ -264,7 +272,7 @@ location:
 identifier:
 '{'
     'type' ':' 'Identifier' ','
-    'name' ':' ID ','
+    'name' ':' tokenID ','
     'loc' ':' location
 '}'
 {
@@ -346,6 +354,21 @@ exp_assign:
     Nothing
 }
 
+-- **************
+-- *            *
+-- * exp_assign *
+-- *            *
+-- **************
+exp_assign_tag:
+'{'
+    'type' ':' 'ExpressionStatement' ','
+    'expression' ':' exp_assign ','
+    'loc' ':' location
+'}'
+{
+    Nothing
+}
+
 -- ***********
 -- *         *
 -- * exp_int *
@@ -408,7 +431,8 @@ stmt_for:
     'init' ':' exp ','
     'test' ':' exp ','
     'update' ':' stmt ','
-    'body' ':' stmts
+    'body' ':' stmts ','
+    'loc' ':' location
 '}'
 {
     Nothing
@@ -473,8 +497,9 @@ stmt_update:
 -- *             *
 -- ***************
 stmt_assign:
-stmt_update { $1 } |
-exp_assign  { $1 }
+stmt_update    { $1 } |
+exp_assign     { $1 } |
+exp_assign_tag { $1 }
 
 -- ***********
 -- *         *
@@ -529,7 +554,11 @@ dec_function: '{'
     'type' ':' 'FunctionDeclaration' ','
     'id' ':' identifier ','
     'params' ':' '[' commalistof(param) ']' ','
-    'body' ':' stmts
+    'body' ':' stmts ','
+    'generator' ':' bool ','
+    'expression' ':' bool ','
+    'async' ':' bool ','
+    'loc' ':' location
 '}'
 {
     Left "MMM"

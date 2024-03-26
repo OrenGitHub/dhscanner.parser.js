@@ -76,7 +76,7 @@ import Location
 @KW_NULL            = null
 @KW_TEST            = \"test\"
 @KW_LINE            = \"line\"
-@KW_TRUE            = \"true\"
+@KW_TRUE            = true
 @KW_ARGS            = "args"
 @KW_NAME            = \"name\"
 @KW_EXPR            =  expr
@@ -103,6 +103,9 @@ import Location
 @KW_PROGRAM         = \"Program\"
 @KW_OPERATOR        = \"operator\"
 @KW_ARGUMENT        = \"argument\"
+@KW_ASYNC           = \"async\"
+@KW_GENERATOR       = \"generator\"
+@KW_EXPRESSION      = \"expression\"
 @KW_ALTERNATE       = \"alternate\"
 @KW_CONSEQUENT      = \"consequent\"
 @KW_STMT_ECHO       = "Stmt_Echo"
@@ -128,6 +131,7 @@ import Location
 @KW_STMT_FOR    = \"ForStatement\"
 @KW_STMT_BLOCK  = \"BlockStatement\"
 @KW_STMT_RETURN = \"ReturnStatement\"
+@KW_STMT_EXP    = \"ExpressionStatement\"
 
 -- ***************
 -- *             *
@@ -252,6 +256,9 @@ tokens :-
 @KW_ALTERNATE       { lex' AlexRawToken_ALTERNATE       }
 @KW_CONSEQUENT      { lex' AlexRawToken_CONSEQUENT      }
 @KW_ARGUMENT        { lex' AlexRawToken_ARGUMENT        }
+@KW_ASYNC           { lex' AlexRawToken_ASYNC           }
+@KW_EXPRESSION      { lex' AlexRawToken_EXPRESSION      }
+@KW_GENERATOR       { lex' AlexRawToken_GENERATOR       }
 @KW_STMT_IF         { lex' AlexRawToken_STMT_IF         }
 @KW_STMT_ECHO       { lex' AlexRawToken_STMT_ECHO       }
 @KW_EXPR_VAR        { lex' AlexRawToken_EXPR_VAR        }
@@ -294,6 +301,7 @@ tokens :-
 @KW_STMT_FOR      { lex' AlexRawToken_STMT_FOR      }
 @KW_STMT_BLOCK    { lex' AlexRawToken_STMT_BLOCK    }
 @KW_STMT_RETURN   { lex' AlexRawToken_STMT_RETURN   }
+@KW_STMT_EXP      { lex' AlexRawToken_STMT_EXP      }
 @KW_STMT_FUNCTION { lex' AlexRawToken_STMT_FUNCTION }
 
 -- *************
@@ -434,6 +442,9 @@ data AlexRawToken
      | AlexRawToken_ALTERNATE       -- ^ Reserved Keyword
      | AlexRawToken_CONSEQUENT      -- ^ Reserved Keyword
      | AlexRawToken_ARGUMENT        -- ^ Reserved Keyword
+     | AlexRawToken_ASYNC           -- ^ Reserved Keyword
+     | AlexRawToken_EXPRESSION      -- ^ Reserved Keyword
+     | AlexRawToken_GENERATOR       -- ^ Reserved Keyword
      | AlexRawToken_STMT_ECHO       -- ^ Reserved Keyword
      | AlexRawToken_EXPR_VAR        -- ^ Reserved Keyword
      | AlexRawToken_EXPR_CALL       -- ^ Reserved Keyword
@@ -488,6 +499,7 @@ data AlexRawToken
      | AlexRawToken_STMT_FOR        -- ^ Reserved Keyword
      | AlexRawToken_STMT_BLOCK      -- ^ Reserved Keyword
      | AlexRawToken_STMT_RETURN     -- ^ Reserved Keyword
+     | AlexRawToken_STMT_EXP        -- ^ Reserved Keyword
 
      -- ***************
      -- *             *
