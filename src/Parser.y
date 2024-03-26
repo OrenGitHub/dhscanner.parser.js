@@ -262,6 +262,7 @@ location:
 -- ************
 tokenID:
 ID      { Nothing } |
+'end'   { Nothing } |
 'start' { Nothing }
 
 -- **************
