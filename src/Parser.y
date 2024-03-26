@@ -112,11 +112,14 @@ import Data.Map ( fromList )
 'stmts'                 { AlexTokenTag AlexRawToken_STMTS           _ }
 'array'                 { AlexTokenTag AlexRawToken_ARRAY           _ }
 'Param'                 { AlexTokenTag AlexRawToken_PARAM           _ }
+'object'                { AlexTokenTag AlexRawToken_OBJECT          _ }
 'prefix'                { AlexTokenTag AlexRawToken_PREFIX          _ }
 'params'                { AlexTokenTag AlexRawToken_PARAMS          _ }
 'column'                { AlexTokenTag AlexRawToken_COLUMN          _ }
 'Literal'               { AlexTokenTag AlexRawToken_LITERAL         _ }
 'Program'               { AlexTokenTag AlexRawToken_PROGRAM         _ }
+'property'              { AlexTokenTag AlexRawToken_PROPERTY        _ }
+'computed'              { AlexTokenTag AlexRawToken_COMPUTED        _ }
 'operator'              { AlexTokenTag AlexRawToken_OPERATOR        _ }
 'alternate'             { AlexTokenTag AlexRawToken_ALTERNATE       _ }
 'consequent'            { AlexTokenTag AlexRawToken_CONSEQUENT      _ }
@@ -154,6 +157,7 @@ QUOTED_BOOL { AlexTokenTag AlexRawToken_QUOTED_BOOL _ }
 -- ***************
 
 'CallExpression'   { AlexTokenTag AlexRawToken_EXPR_CALL   _ }
+'MemberExpression' { AlexTokenTag AlexRawToken_EXPR_MEMBER _ }
 'BinaryExpression' { AlexTokenTag AlexRawToken_EXPR_BINOP  _ }
 'UpdateExpression' { AlexTokenTag AlexRawToken_EXPR_UPDATE _ }
 'AssignExpression' { AlexTokenTag AlexRawToken_EXPR_ASSIGN _ }
@@ -325,6 +329,23 @@ exp_binop:
     Nothing
 }
 
+-- ******************
+-- *                *
+-- * field variable *
+-- *                *
+-- ******************
+var_field:
+'{'
+    'type' ':' 'MemberExpression' ','
+    'computed' ':' bool ','
+    'object' ':' exp_var ','
+    'property' ':' identifier ','
+    'loc' ':' location
+'}'
+{
+    Nothing
+}
+
 -- *******************
 -- *                 *
 -- * simple variable *
@@ -338,7 +359,8 @@ var_simple: identifier { $1 }
 -- *          *
 -- ************
 var:
-var_simple { $1 }
+var_simple { $1 } |
+var_field  { $1 }
 
 -- **************
 -- *            *
@@ -538,6 +560,21 @@ stmt_if:
     Nothing
 }
 
+-- *************
+-- *           *
+-- * stmt_call *
+-- *           *
+-- *************
+stmt_call:
+'{'
+    'type' ':' 'ExpressionStatement' ','
+    'expression' ':' exp_call ','
+    'loc' ':' location
+'}'
+{
+    Nothing
+}
+
 -- ********
 -- *      *
 -- * stmt *
@@ -546,6 +583,7 @@ stmt_if:
 stmt:
 stmt_if     { $1 } |
 stmt_for    { $1 } |
+stmt_call   { $1 } |
 stmt_assign { $1 } |
 stmt_return { $1 }
 

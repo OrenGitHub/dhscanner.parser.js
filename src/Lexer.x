@@ -97,10 +97,13 @@ import Location
 @KW_ARRAY           = array
 @KW_PARAM           = Param
 @KW_PARAMS          = \"params\"
+@KW_OBJECT          = \"object\"
 @KW_PREFIX          = \"prefix\"
 @KW_COLUMN          = \"column\"
 @KW_LITERAL         = \"Literal\"
 @KW_PROGRAM         = \"Program\"
+@KW_COMPUTED        = \"computed\"
+@KW_PROPERTY        = \"property\"
 @KW_OPERATOR        = \"operator\"
 @KW_ARGUMENT        = \"argument\"
 @KW_ARGUMENTS       = \"arguments\"
@@ -142,6 +145,7 @@ import Location
 
 @KW_EXPR_CALL   = \"CallExpression\"
 @KW_EXPR_BINOP  = \"BinaryExpression\"
+@KW_EXPR_MEMBER = \"MemberExpression\"
 @KW_EXPR_UPDATE = \"UpdateExpression\"
 @KW_EXPR_ASSIGN = \"AssignmentExpression\"
 
@@ -250,10 +254,13 @@ tokens :-
 @KW_ARRAY           { lex' AlexRawToken_ARRAY           }
 @KW_PARAM           { lex' AlexRawToken_PARAM           }
 @KW_PARAMS          { lex' AlexRawToken_PARAMS          }
+@KW_OBJECT          { lex' AlexRawToken_OBJECT          }
 @KW_PREFIX          { lex' AlexRawToken_PREFIX          }
 @KW_COLUMN          { lex' AlexRawToken_COLUMN          }
 @KW_LITERAL         { lex' AlexRawToken_LITERAL         }
 @KW_PROGRAM         { lex' AlexRawToken_PROGRAM         }
+@KW_PROPERTY        { lex' AlexRawToken_PROPERTY        }
+@KW_COMPUTED        { lex' AlexRawToken_COMPUTED        }
 @KW_OPERATOR        { lex' AlexRawToken_OPERATOR        }
 @KW_ALTERNATE       { lex' AlexRawToken_ALTERNATE       }
 @KW_CONSEQUENT      { lex' AlexRawToken_CONSEQUENT      }
@@ -292,6 +299,7 @@ tokens :-
 -- ***************
 
 @KW_EXPR_CALL   { lex' AlexRawToken_EXPR_CALL   }
+@KW_EXPR_MEMBER { lex' AlexRawToken_EXPR_MEMBER }
 @KW_EXPR_BINOP  { lex' AlexRawToken_EXPR_BINOP  }
 @KW_EXPR_UPDATE { lex' AlexRawToken_EXPR_UPDATE }
 @KW_EXPR_ASSIGN { lex' AlexRawToken_EXPR_ASSIGN }
@@ -438,11 +446,14 @@ data AlexRawToken
      | AlexRawToken_STMTS           -- ^ Reserved Keyword
      | AlexRawToken_ARRAY           -- ^ Reserved Keyword
      | AlexRawToken_PARAM           -- ^ Reserved Keyword
+     | AlexRawToken_OBJECT          -- ^ Reserved Keyword
      | AlexRawToken_PREFIX          -- ^ Reserved Keyword
      | AlexRawToken_PARAMS          -- ^ Reserved Keyword
      | AlexRawToken_COLUMN          -- ^ Reserved Keyword
      | AlexRawToken_LITERAL         -- ^ Reserved Keyword
      | AlexRawToken_PROGRAM         -- ^ Reserved Keyword
+     | AlexRawToken_PROPERTY        -- ^ Reserved Keyword
+     | AlexRawToken_COMPUTED        -- ^ Reserved Keyword
      | AlexRawToken_OPERATOR        -- ^ Reserved Keyword
      | AlexRawToken_ALTERNATE       -- ^ Reserved Keyword
      | AlexRawToken_CONSEQUENT      -- ^ Reserved Keyword
@@ -493,6 +504,7 @@ data AlexRawToken
 
      | AlexRawToken_EXPR_CALL       -- ^ Reserved Keyword
      | AlexRawToken_EXPR_BINOP      -- ^ Reserved Keyword
+     | AlexRawToken_EXPR_MEMBER     -- ^ Reserved Keyword
      | AlexRawToken_EXPR_UPDATE     -- ^ Reserved Keyword
      | AlexRawToken_EXPR_ASSIGN     -- ^ Reserved Keyword
 
