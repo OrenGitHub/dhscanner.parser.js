@@ -33,17 +33,23 @@ import Data.Map ( fromList )
 %name parse
 
 -- *************
+-- *           *
 -- * tokentype *
+-- *           *
 -- *************
 %tokentype { AlexTokenTag }
 
 -- *********
+-- *       *
 -- * monad *
+-- *       *
 -- *********
 %monad { Alex }
 
 -- *********
+-- *       *
 -- * lexer *
+-- *       *
 -- *********
 %lexer { lexwrap } { AlexTokenTag TokenEOF _ }
 
@@ -57,7 +63,7 @@ import Data.Map ( fromList )
 -- ***************
 -- *             *
 -- * parentheses *
-
+-- *             *
 -- ***************
 
 '('    { AlexTokenTag AlexRawToken_LPAREN _ }
@@ -130,17 +136,10 @@ import Data.Map ( fromList )
 'async'                 { AlexTokenTag AlexRawToken_ASYNC           _ }
 'callee'                { AlexTokenTag AlexRawToken_CALLEE          _ }
 'sourceType'            { AlexTokenTag AlexRawToken_SRC_TYPE        _ }
-'Stmt_Echo'             { AlexTokenTag AlexRawToken_STMT_ECHO       _ }
-'Expr_Variable'         { AlexTokenTag AlexRawToken_EXPR_VAR        _ }
-'Stmt_Expr'             { AlexTokenTag AlexRawToken_STMT_EXPR       _ }
 'Scalar_Int'            { AlexTokenTag AlexRawToken_SCALAR_INT      _ }
 'Identifier'            { AlexTokenTag AlexRawToken_IDENTIFIER      _ }
 'returnType'            { AlexTokenTag AlexRawToken_RETURN_TYPE     _ }
-'Stmt_Function'         { AlexTokenTag AlexRawToken_STMT_FUNCTION   _ }
 'FunctionDeclaration'   { AlexTokenTag AlexRawToken_FUNCTION_DEC    _ }
-'Expr_ConstFetch'       { AlexTokenTag AlexRawToken_EXPR_CONST_GET  _ }
-'Expr_BinaryOp_Plus'    { AlexTokenTag AlexRawToken_EXPR_BINOP_PLUS _ }
-'Expr_BinaryOp_Smaller' { AlexTokenTag AlexRawToken_EXPR_BINOP_LT   _ }
 
 -- *********
 -- *       *
@@ -163,6 +162,17 @@ QUOTED_BOOL { AlexTokenTag AlexRawToken_QUOTED_BOOL _ }
 'UpdateExpression' { AlexTokenTag AlexRawToken_EXPR_UPDATE _ }
 'AssignExpression' { AlexTokenTag AlexRawToken_EXPR_ASSIGN _ }
 
+-- ***************
+-- *             *
+-- * expressions *
+-- *             *
+-- ***************
+
+'Expr_Variable'         { AlexTokenTag AlexRawToken_EXPR_VAR        _ }
+'Expr_ConstFetch'       { AlexTokenTag AlexRawToken_EXPR_CONST_GET  _ }
+'Expr_BinaryOp_Plus'    { AlexTokenTag AlexRawToken_EXPR_BINOP_PLUS _ }
+'Expr_BinaryOp_Smaller' { AlexTokenTag AlexRawToken_EXPR_BINOP_LT   _ }
+
 -- **************
 -- *            *
 -- * statements *
@@ -174,6 +184,16 @@ QUOTED_BOOL { AlexTokenTag AlexRawToken_QUOTED_BOOL _ }
 'BlockStatement'      { AlexTokenTag AlexRawToken_STMT_BLOCK  _ }
 'ReturnStatement'     { AlexTokenTag AlexRawToken_STMT_RETURN _ }
 'ExpressionStatement' { AlexTokenTag AlexRawToken_STMT_EXP    _ }
+
+-- **************
+-- *            *
+-- * statements *
+-- *            *
+-- **************
+
+'Stmt_Echo'     { AlexTokenTag AlexRawToken_STMT_ECHO       _ }
+'Stmt_Expr'     { AlexTokenTag AlexRawToken_STMT_EXPR       _ }
+'Stmt_Function' { AlexTokenTag AlexRawToken_STMT_FUNCTION   _ }
 
 -- *************
 -- *           *
@@ -274,9 +294,9 @@ location:
 -- *          *
 -- ************
 tokenID:
-ID      { Nothing } |
-'end'   { Nothing } |
-'start' { Nothing }
+ID      { tokIDValue $1 } |
+'end'   { "end"         } |
+'start' { "start"       }
 
 -- **************
 -- *            *
@@ -290,7 +310,11 @@ identifier:
     'loc' ':' location
 '}'
 {
-    Nothing
+    Token.Named
+    {
+        Token.content = $8,
+        Token.location = $12
+    }
 }
 
 -- *********
@@ -333,7 +357,13 @@ exp_binop:
     'loc' ':' location
 '}'
 {
-    Nothing
+    Ast.ExpBinop $ Ast.ExpBinopContent
+    {
+        Ast.expBinopLeft = $12,
+        Ast.expBinopRight = $16,
+        Ast.expBinopOperator = $8,
+        Ast.expBinopLocation = $20
+    }
 }
 
 -- ******************
@@ -350,7 +380,11 @@ var_field:
     'loc' ':' location
 '}'
 {
-    Nothing
+    Ast.VarField $ Ast.VarFieldContent
+    {
+        varFieldLhs = Ast.ExpVarContent $12,
+        varFieldName = Token.FieldName $16
+    }
 }
 
 -- *******************
@@ -358,7 +392,14 @@ var_field:
 -- * simple variable *
 -- *                 *
 -- *******************
-var_simple: identifier { $1 }
+var_simple:
+identifier
+{
+    Ast.VarSimple $ Ast.VarSimpleContent
+    {
+        Ast.varName = Token.VarName $1
+    }
+}
 
 -- ************
 -- *          *
@@ -414,7 +455,14 @@ exp_int:
     'loc' ':' location
 '}'
 {
-    Nothing
+    Ast.ExpInt $ Ast.ExpIntContent
+    {
+        expIntValue = Token.ConstInt
+        {
+            Token.constIntValue = tokIntValue $8,
+            Token.constIntLocation = $16
+        }
+    }
 }
 
 -- ************
@@ -430,7 +478,14 @@ exp_bool:
     'loc' ':' location
 '}'
 {
-    Nothing
+    Ast.ExpBool $ Ast.ExpBoolContent
+    {
+        expBoolValue = Token.ConstBool
+        {
+            Token.constBoolValue = $8,
+            Token.constBoolLocation = $16
+        }
+    }
 }
 
 -- ************
@@ -463,11 +518,11 @@ exp_call:
 -- *******
 exp:
 exp_int    { $1 } |
-exp_var    { $1 } |
+-- exp_var    { Nothing } |
 exp_bool   { $1 } |
-exp_call   { $1 } |
-exp_binop  { $1 } |
-exp_assign { $1 }
+-- exp_call   { Nothing } |
+exp_binop  { $1 }
+-- exp_assign { Nothing }
 
 -- ************
 -- *          *
@@ -493,11 +548,11 @@ stmt_for:
 -- *          *
 -- ************
 operator:
-'++' { Nothing } |
-'==' { Nothing } |
-'*'  { Nothing } |
-'<'  { Nothing } |
-'='  { Nothing }
+'++' { Ast.TIMES } |
+'==' { Ast.TIMES } |
+'*'  { Ast.TIMES } |
+'<'  { Ast.TIMES } |
+'='  { Ast.TIMES }
 
 -- ********
 -- *      *
