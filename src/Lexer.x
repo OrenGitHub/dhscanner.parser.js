@@ -181,8 +181,11 @@ import Location
 @LETTER = [A-Za-z_]
 @LETTER_OR_DIGIT = @LETTER | @DIGIT
 @QUOTE = \"
+@SQUOTE = \'
+@NQUOTE = [^\"]*
 @ID = (@QUOTE)@LETTER(@LETTER_OR_DIGIT*)(@QUOTE)
 @QUOTED_INT = (@QUOTE)(@INT)(@QUOTE)
+@QUOTED_STR = (@QUOTE)(@SQUOTE)(@NQUOTE)(@SQUOTE)(@QUOTE)
 @QUOTED_BOOL = (@QUOTE)(true)(@QUOTE)|(@QUOTE)(false)(@QUOTE)
 
 -- ***************
@@ -299,6 +302,7 @@ tokens :-
 -- *********
 
 @QUOTED_INT  { lex' AlexRawToken_QUOTED_INT  }
+@QUOTED_STR  { lex' AlexRawToken_QUOTED_STR  }
 @QUOTED_BOOL { lex' AlexRawToken_QUOTED_BOOL }
 
 -- ***************
@@ -495,6 +499,7 @@ data AlexRawToken
      -- *********
 
      | AlexRawToken_QUOTED_INT      -- ^ Reserved Keyword
+     | AlexRawToken_QUOTED_STR      -- ^ Reserved Keyword
      | AlexRawToken_QUOTED_BOOL     -- ^ Reserved Keyword
 
      -- *************

@@ -151,6 +151,7 @@ import Data.Map ( fromList )
 -- *********
 
 QUOTED_INT  { AlexTokenTag AlexRawToken_QUOTED_INT  _ }
+QUOTED_STR  { AlexTokenTag AlexRawToken_QUOTED_STR  _ }
 QUOTED_BOOL { AlexTokenTag AlexRawToken_QUOTED_BOOL _ }
 
 -- ***************
@@ -486,6 +487,30 @@ exp_assign_tag:
 
 -- ***********
 -- *         *
+-- * exp_str *
+-- *         *
+-- ***********
+exp_str:
+'{'
+    'type' ':' 'Literal' ','
+    'value' ':' ID ','
+    'raw' ':' QUOTED_STR ','
+    'loc' ':' location
+'}'
+{
+    Ast.ExpStr $ Ast.ExpStrContent
+    {
+        expStrValue = Token.ConstStr
+        {
+            Token.constStrValue = tokIDValue $8,
+            Token.constStrLocation = $16
+        }
+    }
+}
+
+
+-- ***********
+-- *         *
 -- * exp_int *
 -- *         *
 -- ***********
@@ -564,6 +589,7 @@ exp_call:
 -- *******
 exp:
 exp_int    { $1 } |
+exp_str    { $1 } |
 exp_var    { $1 } |
 exp_bool   { $1 } |
 exp_call   { $1 } |
