@@ -566,6 +566,13 @@ exp_bool:
 -- ************
 exp_null: 'null' { Nothing }
 
+-- *************
+-- *           *
+-- * arguments *
+-- *           *
+-- *************
+arguments: { [] } | commalistof(exp) { $1 }
+
 -- ************
 -- *          *
 -- * exp_call *
@@ -575,7 +582,7 @@ exp_call:
 '{'
     'type' ':' 'CallExpression' ','
     'callee' ':' exp ','
-    'arguments' ':' '[' commalistof(exp) ']' ','
+    'arguments' ':' '[' arguments ']' ','
     'loc' ':' location
 '}'
 {
