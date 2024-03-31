@@ -112,6 +112,7 @@ import Location
 @KW_GENERATOR       = \"generator\"
 @KW_SRC_TYPE        = \"sourceType\"
 @KW_EXPRESSION      = \"expression\"
+@KW_DECLARATIONS    = \"declarations\"
 @KW_ALTERNATE       = \"alternate\"
 @KW_CONSEQUENT      = \"consequent\"
 @KW_STMT_ECHO       = "Stmt_Echo"
@@ -125,6 +126,8 @@ import Location
 @KW_EXPR_CONST_GET  = "Expr_ConstFetch"
 @KW_EXPR_BINOP_LT   = "Expr_BinaryOp_Smaller"
 @KW_EXPR_BINOP_PLUS = "Expr_BinaryOp_Plus"
+@KW_VAR_DECLARATION = \"VariableDeclaration\"
+@KW_VAR_DECLARATOR  = \"VariableDeclarator\"
 
 -- **************
 -- *            *
@@ -270,6 +273,7 @@ tokens :-
 @KW_CALLEE          { lex' AlexRawToken_CALLEE          }
 @KW_ASYNC           { lex' AlexRawToken_ASYNC           }
 @KW_EXPRESSION      { lex' AlexRawToken_EXPRESSION      }
+@KW_DECLARATIONS    { lex' AlexRawToken_DECLARATIONS    }
 @KW_SRC_TYPE        { lex' AlexRawToken_SRC_TYPE        }
 @KW_GENERATOR       { lex' AlexRawToken_GENERATOR       }
 @KW_STMT_IF         { lex' AlexRawToken_STMT_IF         }
@@ -284,6 +288,9 @@ tokens :-
 @KW_EXPR_CONST_GET  { lex' AlexRawToken_EXPR_CONST_GET  }
 @KW_EXPR_BINOP_LT   { lex' AlexRawToken_EXPR_BINOP_LT   }
 @KW_EXPR_BINOP_PLUS { lex' AlexRawToken_EXPR_BINOP_PLUS }
+@KW_VAR_DECLARATION { lex' AlexRawToken_VAR_DECLARATION }
+@KW_VAR_DECLARATOR  { lex' AlexRawToken_VAR_DECLARATOR  }
+
 
 -- *********
 -- *       *
@@ -464,6 +471,7 @@ data AlexRawToken
      | AlexRawToken_CALLEE          -- ^ Reserved Keyword
      | AlexRawToken_ASYNC           -- ^ Reserved Keyword
      | AlexRawToken_EXPRESSION      -- ^ Reserved Keyword
+     | AlexRawToken_DECLARATIONS    -- ^ Reserved Keyword
      | AlexRawToken_SRC_TYPE        -- ^ Reserved Keyword
      | AlexRawToken_GENERATOR       -- ^ Reserved Keyword
      | AlexRawToken_STMT_ECHO       -- ^ Reserved Keyword
@@ -477,6 +485,8 @@ data AlexRawToken
      | AlexRawToken_EXPR_CONST_GET  -- ^ Reserved Keyword
      | AlexRawToken_EXPR_BINOP_LT   -- ^ Reserved Keyword
      | AlexRawToken_EXPR_BINOP_PLUS -- ^ Reserved Keyword
+     | AlexRawToken_VAR_DECLARATION -- ^ Reserved Keyword
+     | AlexRawToken_VAR_DECLARATOR  -- ^ Reserved Keyword
 
      -- *********
      -- *       *

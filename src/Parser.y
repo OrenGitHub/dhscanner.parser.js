@@ -133,6 +133,7 @@ import Data.Map ( fromList )
 'arguments'             { AlexTokenTag AlexRawToken_ARGUMENTS       _ }
 'generator'             { AlexTokenTag AlexRawToken_GENERATOR       _ }
 'expression'            { AlexTokenTag AlexRawToken_EXPRESSION      _ }
+'declarations'          { AlexTokenTag AlexRawToken_DECLARATIONS    _ }
 'async'                 { AlexTokenTag AlexRawToken_ASYNC           _ }
 'callee'                { AlexTokenTag AlexRawToken_CALLEE          _ }
 'sourceType'            { AlexTokenTag AlexRawToken_SRC_TYPE        _ }
@@ -140,6 +141,8 @@ import Data.Map ( fromList )
 'Identifier'            { AlexTokenTag AlexRawToken_IDENTIFIER      _ }
 'returnType'            { AlexTokenTag AlexRawToken_RETURN_TYPE     _ }
 'FunctionDeclaration'   { AlexTokenTag AlexRawToken_FUNCTION_DEC    _ }
+'VariableDeclaration'   { AlexTokenTag AlexRawToken_VAR_DECLARATION _ }
+'VariableDeclarator'    { AlexTokenTag AlexRawToken_VAR_DECLARATOR  _ }
 
 -- *********
 -- *       *
@@ -247,7 +250,8 @@ program:
     Ast.Root
     {
         Ast.filename = "DDD",
-        actualAst = []
+        decs = [],
+        stmts = []
     }
 }
 
@@ -260,12 +264,43 @@ dec_or_stmt:
 dec  { Left  $1 } |
 stmt { Right $1 }
 
+-- ***************
+-- *             *
+-- * dec_var_tag *
+-- *             *
+-- ***************
+dec_var_tag:
+'{'
+    'type' ':' 'VariableDeclarator' ','
+    'id' ':' identifier ','
+    'init' ':' exp
+'}'
+{
+    Left "DDDD"
+}
+
+-- ***********
+-- *         *
+-- * dec_var *
+-- *         *
+-- ***********
+dec_var:
+'{'
+    'type' ':' 'VariableDeclaration' ','
+    'declarations' ':' '[' commalistof(dec_var_tag) ']'
+'}'
+{
+    Left "GGGG"
+}
+
 -- *******
 -- *     *
 -- * dec *
 -- *     *
 -- *******
-dec: dec_function { $1 }
+dec:
+dec_var      { $1 } |
+dec_function { $1 }
 
 -- ************
 -- *          *
