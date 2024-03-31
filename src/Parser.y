@@ -376,7 +376,14 @@ param:
 -- * exp_var *
 -- *         *
 -- ***********
-exp_var: var { $1 }
+exp_var:
+var
+{
+    ExpVar $ ExpVarContent
+    {
+        actualExpVar = $1
+    }
+}
 
 -- *************
 -- *           *
@@ -410,7 +417,7 @@ var_field:
 '{'
     'type' ':' 'MemberExpression' ','
     'computed' ':' bool ','
-    'object' ':' exp_var ','
+    'object' ':' var ','
     'property' ':' identifier ','
     'loc' ':' location
 '}'
@@ -543,7 +550,11 @@ exp_call:
     'loc' ':' location
 '}'
 {
-    Nothing
+    Ast.ExpCall $ Ast.ExpCallContent
+    {
+        Ast.callee = $8,
+        Ast.args = $13
+    }
 }
 
 -- *******
@@ -553,9 +564,9 @@ exp_call:
 -- *******
 exp:
 exp_int    { $1 } |
--- exp_var    { Nothing } |
+exp_var    { $1 } |
 exp_bool   { $1 } |
--- exp_call   { Nothing } |
+exp_call   { $1 } |
 exp_binop  { $1 }
 -- exp_assign { Nothing }
 
