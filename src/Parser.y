@@ -95,6 +95,7 @@ import Data.Map ( fromList )
 'loc'                   { AlexTokenTag AlexRawToken_LOC             _ }
 'Arg'                   { AlexTokenTag AlexRawToken_ARG             _ }
 'var'                   { AlexTokenTag AlexRawToken_VAR             _ }
+'kind'                  { AlexTokenTag AlexRawToken_KIND            _ }
 'null'                  { AlexTokenTag AlexRawToken_NULL            _ }
 'test'                  { AlexTokenTag AlexRawToken_TEST            _ }
 'line'                  { AlexTokenTag AlexRawToken_LINE            _ }
@@ -274,7 +275,8 @@ dec_var_tag:
 '{'
     'type' ':' 'VariableDeclarator' ','
     'id' ':' identifier ','
-    'init' ':' exp
+    'init' ':' exp ','
+    'loc' ':' location
 '}'
 {
     Left "DDDD"
@@ -288,7 +290,9 @@ dec_var_tag:
 dec_var:
 '{'
     'type' ':' 'VariableDeclaration' ','
-    'declarations' ':' '[' commalistof(dec_var_tag) ']'
+    'declarations' ':' '[' commalistof(dec_var_tag) ']' ','
+    'kind' ':' tokenID ','
+    'loc' ':' location
 '}'
 {
     Left "GGGG"

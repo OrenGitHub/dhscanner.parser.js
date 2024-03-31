@@ -74,6 +74,7 @@ import Location
 @KW_ARG             = "Arg"
 @KW_VAR             = "var"
 @KW_NULL            = null
+@KW_KIND            = \"kind\"
 @KW_TEST            = \"test\"
 @KW_LINE            = \"line\"
 @KW_TRUE            = true
@@ -182,10 +183,14 @@ import Location
 @LETTER_OR_DIGIT = @LETTER | @DIGIT
 @QUOTE = \"
 @SQUOTE = \'
-@NQUOTE = [^\"]*
+@DQUOTE = \\\"
+@NQUOTE = [^\"\']*
 @ID = (@QUOTE)@LETTER(@LETTER_OR_DIGIT*)(@QUOTE)
 @QUOTED_INT = (@QUOTE)(@INT)(@QUOTE)
-@QUOTED_STR = (@QUOTE)(@SQUOTE)(@NQUOTE)(@SQUOTE)(@QUOTE)
+@QUOTED_STR_S = (@QUOTE)(@SQUOTE)(@NQUOTE)(@SQUOTE)(@QUOTE)
+@QUOTED_STR_D = (@QUOTE)(@DQUOTE)(@NQUOTE)(@DQUOTE)(@QUOTE) 
+-- @QUOTED_STR_D = \"\\\"vm2\\\"\" 
+@QUOTED_STR = (@QUOTED_STR_S)|(@QUOTED_STR_D)
 @QUOTED_BOOL = (@QUOTE)(true)(@QUOTE)|(@QUOTE)(false)(@QUOTE)
 
 -- ***************
@@ -238,6 +243,7 @@ tokens :-
 @KW_ARG             { lex' AlexRawToken_ARG             }
 @KW_VAR             { lex' AlexRawToken_VAR             }
 @KW_NULL            { lex' AlexRawToken_NULL            }
+@KW_KIND            { lex' AlexRawToken_KIND            }
 @KW_TEST            { lex' AlexRawToken_TEST            }
 @KW_LINE            { lex' AlexRawToken_LINE            }
 @KW_TRUE            { lex' AlexRawToken_TRUE            }
@@ -438,6 +444,7 @@ data AlexRawToken
      | AlexRawToken_VAR             -- ^ Reserved Keyword
      | AlexRawToken_TEST            -- ^ Reserved Keyword
      | AlexRawToken_NULL            -- ^ Reserved Keyword
+     | AlexRawToken_KIND            -- ^ Reserved Keyword
      | AlexRawToken_LINE            -- ^ Reserved Keyword
      | AlexRawToken_TRUE            -- ^ Reserved Keyword
      | AlexRawToken_ARGS            -- ^ Reserved Keyword
