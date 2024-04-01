@@ -336,7 +336,7 @@ location:
         lineStart = tokIntValue $7,
         colStart = tokIntValue $11,
         lineEnd = tokIntValue $19,
-        colEnd = tokIntValue $21
+        colEnd = tokIntValue $23
     }
 }
 
