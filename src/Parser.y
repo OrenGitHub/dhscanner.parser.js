@@ -165,6 +165,7 @@ QUOTED_BOOL { AlexTokenTag AlexRawToken_QUOTED_BOOL _ }
 -- *             *
 -- ***************
 
+'NewExpression'    { AlexTokenTag AlexRawToken_EXPR_NEW    _ }
 'CallExpression'   { AlexTokenTag AlexRawToken_EXPR_CALL   _ }
 'MemberExpression' { AlexTokenTag AlexRawToken_EXPR_MEMBER _ }
 'BinaryExpression' { AlexTokenTag AlexRawToken_EXPR_BINOP  _ }
@@ -666,6 +667,26 @@ exp_fstring:
     }
 }
 
+-- ***********
+-- *         *
+-- * exp_new *
+-- *         *
+-- ***********
+exp_new:
+'{'
+    'type' ':' 'NewExpression' ','
+    'callee' ':' exp ','
+    'arguments' ':' '[' expressions ']' ','
+    'loc' ':' location
+'}'
+{
+    Ast.ExpCall $ Ast.ExpCallContent
+    {
+        Ast.callee = $8,
+        Ast.args = $13
+    }
+}
+
 -- *******
 -- *     *
 -- * exp *
@@ -675,6 +696,7 @@ exp:
 exp_int     { $1 } |
 exp_str     { $1 } |
 exp_var     { $1 } |
+exp_new     { $1 } |
 exp_bool    { $1 } |
 exp_call    { $1 } |
 exp_binop   { $1 } |

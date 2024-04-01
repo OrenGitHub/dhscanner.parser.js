@@ -121,8 +121,8 @@ import Location
 @KW_ALTERNATE       = \"alternate\"
 @KW_CONSEQUENT      = \"consequent\"
 @KW_STMT_ECHO       = "Stmt_Echo"
-@KW_EXPR_VAR        = "Expr_Variable"
 @KW_STMT_EXPR       = "Stmt_Expression"
+@KW_EXPR_VAR        = "Expr_Variable"
 @KW_SCALAR_INT      = "Scalar_Int"
 @KW_IDENTIFIER      = \"Identifier\"
 @KW_RETURN_TYPE     = "returnType"
@@ -154,6 +154,7 @@ import Location
 -- *             *
 -- ***************
 
+@KW_EXPR_NEW    = \"NewExpression\"
 @KW_EXPR_CALL   = \"CallExpression\"
 @KW_EXPR_BINOP  = \"BinaryExpression\"
 @KW_EXPR_MEMBER = \"MemberExpression\"
@@ -299,6 +300,7 @@ tokens :-
 @KW_STMT_IF         { lex' AlexRawToken_STMT_IF         }
 @KW_STMT_ECHO       { lex' AlexRawToken_STMT_ECHO       }
 @KW_EXPR_VAR        { lex' AlexRawToken_EXPR_VAR        }
+@KW_EXPR_NEW        { lex' AlexRawToken_EXPR_NEW        }
 @KW_EXPR_CALL       { lex' AlexRawToken_EXPR_CALL       }
 @KW_STMT_EXPR       { lex' AlexRawToken_STMT_EXPR       }
 @KW_SCALAR_INT      { lex' AlexRawToken_SCALAR_INT      }
@@ -330,6 +332,7 @@ tokens :-
 -- *             *
 -- ***************
 
+@KW_EXPR_NEW    { lex' AlexRawToken_EXPR_CALL   }
 @KW_EXPR_CALL   { lex' AlexRawToken_EXPR_CALL   }
 @KW_EXPR_MEMBER { lex' AlexRawToken_EXPR_MEMBER }
 @KW_EXPR_BINOP  { lex' AlexRawToken_EXPR_BINOP  }
@@ -547,6 +550,7 @@ data AlexRawToken
      -- *             *
      -- ***************
 
+     | AlexRawToken_EXPR_NEW        -- ^ Reserved Keyword
      | AlexRawToken_EXPR_CALL       -- ^ Reserved Keyword
      | AlexRawToken_EXPR_BINOP      -- ^ Reserved Keyword
      | AlexRawToken_EXPR_MEMBER     -- ^ Reserved Keyword
