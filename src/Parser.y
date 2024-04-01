@@ -260,8 +260,8 @@ program:
     Ast.Root
     {
         Ast.filename = "DDD",
-        decs = [],
-        stmts = []
+        decs = lefts $9,
+        stmts = rights $9
     }
 }
 
@@ -287,7 +287,12 @@ dec_var_tag:
     'loc' ':' location
 '}'
 {
-    Left "DDDD"
+    Ast.DecVarContent
+    {
+        Ast.decVarName = Token.VarName $8,
+        Ast.decVarNominalType = Token.NominalTy $ Token.Named "auto" $16,
+        Ast.decVarInitValue = Just $12
+    }
 }
 
 -- ***********
@@ -303,7 +308,7 @@ dec_var:
     'loc' ':' location
 '}'
 {
-    Left "GGGG"
+   head $9 
 }
 
 -- *******
@@ -479,7 +484,11 @@ exp_assign:
     'loc' ':' location
 '}'
 {
-    Nothing
+    Ast.StmtAssign $ Ast.StmtAssignContent
+    {
+        stmtAssignLhs = $12,
+        stmtAssignRhs = $16
+    }
 }
 
 -- **************
@@ -494,7 +503,7 @@ exp_assign_tag:
     'loc' ':' location
 '}'
 {
-    Nothing
+    $8
 }
 
 -- ***********
@@ -594,7 +603,7 @@ exp_call:
     'loc' ':' location
 '}'
 {
-    Ast.ExpCall $ Ast.ExpCallContent
+    Ast.ExpCallContent
     {
         Ast.callee = $8,
         Ast.args = $13
@@ -698,7 +707,7 @@ exp_str     { $1 } |
 exp_var     { $1 } |
 exp_new     { $1 } |
 exp_bool    { $1 } |
-exp_call    { $1 } |
+exp_call    { Ast.ExpCall $1 } |
 exp_binop   { $1 } |
 exp_lambda  { $1 } |
 exp_fstring { $1 }
@@ -719,7 +728,12 @@ stmt_for:
     'loc' ':' location
 '}'
 {
-    Nothing
+    Ast.StmtWhile $ Ast.StmtWhileContent
+    {
+        Ast.stmtWhileCond = $12,
+        Ast.stmtWhileBody = $20,
+        Ast.stmtWhileLocation = $24
+    }
 }
 
 -- ************
@@ -755,7 +769,11 @@ stmt_return:
     'loc' ':' location
 '}'
 {
-    Nothing
+    Ast.StmtReturn $ Ast.StmtReturnContent
+    {
+        Ast.stmtReturnValue = Just $8,
+        Ast.stmtReturnLocation = $12
+    }
 }
 
 -- ***************
@@ -772,7 +790,11 @@ stmt_update:
     'loc' ':' location
 '}'
 {
-    Nothing
+    Ast.StmtAssign $ Ast.StmtAssignContent
+    {
+        Ast.stmtAssignLhs = Ast.VarSimple $ Ast.VarSimpleContent $ Token.VarName $12,
+        Ast.stmtAssignRhs = Ast.ExpInt $ Ast.ExpIntContent $ Token.ConstInt 0 $20
+    }
 }
 
 -- ***************
@@ -799,7 +821,12 @@ stmt_if:
     'loc' ':' location
 '}'
 {
-    Nothing
+    Ast.StmtIf $ Ast.StmtIfContent
+    {
+        Ast.stmtIfCond = $8,
+        Ast.stmtIfBody = $12,
+        Ast.stmtIfLocation = $20
+    }
 }
 
 -- *************
@@ -814,7 +841,7 @@ stmt_call:
     'loc' ':' location
 '}'
 {
-    Nothing
+    Ast.StmtCall $8
 }
 
 -- ***************
@@ -822,7 +849,11 @@ stmt_call:
 -- * stmt_decvar *
 -- *             *
 -- ***************
-stmt_decvar: dec_var { Nothing }
+stmt_decvar:
+dec_var
+{
+    Ast.StmtDecvar $1
+}
 
 -- ********
 -- *      *
@@ -849,7 +880,7 @@ stmts:
     'loc' ':' location
 '}'
 {
-    []
+    $9
 } |
 'null' { [] }
 
@@ -865,7 +896,8 @@ params: '[' ']' { [] } | '[' commalistof(param) ']' { $2 }
 -- * dec_function *
 -- *              *
 -- ****************
-dec_function: '{'
+dec_function:
+'{'
     'type' ':' 'FunctionDeclaration' ','
     'id' ':' identifier ','
     'params' ':' params ','
@@ -876,7 +908,13 @@ dec_function: '{'
     'loc' ':' location
 '}'
 {
-    Left "MMM"
+    Ast.DecFunc $ Ast.DecFuncContent
+    {
+        Ast.decFuncReturnType = Token.NominalTy $ Token.Named "any" $32,
+        Ast.decFuncName = Token.FuncName $8,
+        Ast.decFuncParams = $12,
+        Ast.decFuncBody = $16
+    }
 }
 
 {
