@@ -153,6 +153,7 @@ import Location
 @KW_EXPR_MEMBER = \"MemberExpression\"
 @KW_EXPR_UPDATE = \"UpdateExpression\"
 @KW_EXPR_ASSIGN = \"AssignmentExpression\"
+@KW_EXPR_LAMBDA = \"ArrowFunctionExpression\"
 
 -- *************
 -- *           *
@@ -321,6 +322,7 @@ tokens :-
 @KW_EXPR_BINOP  { lex' AlexRawToken_EXPR_BINOP  }
 @KW_EXPR_UPDATE { lex' AlexRawToken_EXPR_UPDATE }
 @KW_EXPR_ASSIGN { lex' AlexRawToken_EXPR_ASSIGN }
+@KW_EXPR_LAMBDA { lex' AlexRawToken_EXPR_LAMBDA }
 
 -- **************
 -- *            *
@@ -531,6 +533,7 @@ data AlexRawToken
      | AlexRawToken_EXPR_MEMBER     -- ^ Reserved Keyword
      | AlexRawToken_EXPR_UPDATE     -- ^ Reserved Keyword
      | AlexRawToken_EXPR_ASSIGN     -- ^ Reserved Keyword
+     | AlexRawToken_EXPR_LAMBDA     -- ^ Reserved Keyword
 
      -- **************
      -- *            *

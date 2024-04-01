@@ -166,6 +166,7 @@ QUOTED_BOOL { AlexTokenTag AlexRawToken_QUOTED_BOOL _ }
 'BinaryExpression' { AlexTokenTag AlexRawToken_EXPR_BINOP  _ }
 'UpdateExpression' { AlexTokenTag AlexRawToken_EXPR_UPDATE _ }
 'AssignExpression' { AlexTokenTag AlexRawToken_EXPR_ASSIGN _ }
+'LambdaExpression' { AlexTokenTag AlexRawToken_EXPR_LAMBDA _ }
 
 -- ***************
 -- *             *
@@ -369,11 +370,12 @@ param:
     'loc' ':' location
 '}'
 {
-    Token.Named
+    Ast.Param
     {
-        Token.content = tokIDValue $8,
-        Token.location = $12
-    } 
+        Ast.paramName = Token.ParamName $ Token.Named (tokIDValue $8) $12,
+        Ast.paramNominalType = Token.NominalTy $ Token.Named "any" $12,
+        Ast.paramSerialIdx = 156
+    }
 }
 
 -- ***********
@@ -593,6 +595,26 @@ exp_call:
     }
 }
 
+-- **************
+-- *            *
+-- * exp_lambda *
+-- *            *
+-- **************
+exp_lambda:
+'{'
+    'type' ':' 'LambdaExpression' ','
+    'id' ':' 'null' ','
+    'params' ':' params ','
+    'body' ':' stmts 
+'}'
+{
+    Ast.ExpLambda $ Ast.ExpLambdaContent
+    {
+        expLambdaParams = $12,
+        expLambdaBody = $16
+    }
+}
+
 -- *******
 -- *     *
 -- * exp *
@@ -604,7 +626,8 @@ exp_str    { $1 } |
 exp_var    { $1 } |
 exp_bool   { $1 } |
 exp_call   { $1 } |
-exp_binop  { $1 }
+exp_binop  { $1 } |
+exp_lambda { $1 }
 -- exp_assign { Nothing }
 
 -- ************
@@ -748,6 +771,14 @@ stmts:
 } |
 'null' { [] }
 
+-- **********
+-- *        *
+-- * params *
+-- *        *
+-- **********
+params:
+'[' commalistof(param) ']' { $2 }
+
 -- ****************
 -- *              *
 -- * dec_function *
@@ -756,7 +787,7 @@ stmts:
 dec_function: '{'
     'type' ':' 'FunctionDeclaration' ','
     'id' ':' identifier ','
-    'params' ':' '[' commalistof(param) ']' ','
+    'params' ':' params ','
     'body' ':' stmts ','
     'generator' ':' bool ','
     'expression' ':' bool ','
