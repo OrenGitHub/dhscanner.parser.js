@@ -311,7 +311,6 @@ dec_var:
 -- *     *
 -- *******
 dec:
-dec_var      { $1 } |
 dec_function { $1 }
 
 -- ************
@@ -796,6 +795,13 @@ stmt_call:
     Nothing
 }
 
+-- ***************
+-- *             *
+-- * stmt_decvar *
+-- *             *
+-- ***************
+stmt_decvar: dec_var { Nothing }
+
 -- ********
 -- *      *
 -- * stmt *
@@ -806,6 +812,7 @@ stmt_if     { $1 } |
 stmt_for    { $1 } |
 stmt_call   { $1 } |
 stmt_assign { $1 } |
+stmt_decvar { $1 } |
 stmt_return { $1 }
 
 -- *********
