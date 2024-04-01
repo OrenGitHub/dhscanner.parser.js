@@ -858,8 +858,7 @@ stmts:
 -- * params *
 -- *        *
 -- **********
-params:
-'[' commalistof(param) ']' { $2 }
+params: '[' ']' { [] } | '[' commalistof(param) ']' { $2 }
 
 -- ****************
 -- *              *
