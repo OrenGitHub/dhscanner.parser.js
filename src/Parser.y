@@ -95,6 +95,7 @@ import Data.Map ( fromList )
 'loc'                   { AlexTokenTag AlexRawToken_LOC             _ }
 'Arg'                   { AlexTokenTag AlexRawToken_ARG             _ }
 'var'                   { AlexTokenTag AlexRawToken_VAR             _ }
+'tail'                  { AlexTokenTag AlexRawToken_TAIL            _ }
 'kind'                  { AlexTokenTag AlexRawToken_KIND            _ }
 'null'                  { AlexTokenTag AlexRawToken_NULL            _ }
 'test'                  { AlexTokenTag AlexRawToken_TEST            _ }
@@ -110,6 +111,8 @@ import Data.Map ( fromList )
 'init'                  { AlexTokenTag AlexRawToken_INIT            _ }
 'cond'                  { AlexTokenTag AlexRawToken_COND            _ }
 'body'                  { AlexTokenTag AlexRawToken_BODY            _ }
+'quasis'                { AlexTokenTag AlexRawToken_QUASIS          _ }
+'cooked'                { AlexTokenTag AlexRawToken_COOKED          _ }
 'update'                { AlexTokenTag AlexRawToken_UPDATE          _ }
 'false'                 { AlexTokenTag AlexRawToken_FALSE           _ }
 'start'                 { AlexTokenTag AlexRawToken_START           _ }
@@ -134,6 +137,7 @@ import Data.Map ( fromList )
 'arguments'             { AlexTokenTag AlexRawToken_ARGUMENTS       _ }
 'generator'             { AlexTokenTag AlexRawToken_GENERATOR       _ }
 'expression'            { AlexTokenTag AlexRawToken_EXPRESSION      _ }
+'expressions'           { AlexTokenTag AlexRawToken_EXPRESSIONS     _ }
 'declarations'          { AlexTokenTag AlexRawToken_DECLARATIONS    _ }
 'async'                 { AlexTokenTag AlexRawToken_ASYNC           _ }
 'callee'                { AlexTokenTag AlexRawToken_CALLEE          _ }
@@ -189,6 +193,8 @@ QUOTED_BOOL { AlexTokenTag AlexRawToken_QUOTED_BOOL _ }
 'ForStatement'        { AlexTokenTag AlexRawToken_STMT_FOR    _ }
 'BlockStatement'      { AlexTokenTag AlexRawToken_STMT_BLOCK  _ }
 'ReturnStatement'     { AlexTokenTag AlexRawToken_STMT_RETURN _ }
+'TemplateLiteral'     { AlexTokenTag AlexRawToken_TEMPLATE_LI _ }
+'TemplateElement'     { AlexTokenTag AlexRawToken_TEMPLATE_EL _ }
 'ExpressionStatement' { AlexTokenTag AlexRawToken_STMT_EXP    _ }
 
 -- **************
@@ -568,12 +574,12 @@ exp_bool:
 -- ************
 exp_null: 'null' { Nothing }
 
--- *************
--- *           *
--- * arguments *
--- *           *
--- *************
-arguments: { [] } | commalistof(exp) { $1 }
+-- ***************
+-- *             *
+-- * expressions *
+-- *             *
+-- ***************
+expressions: { [] } | commalistof(exp) { $1 }
 
 -- ************
 -- *          *
@@ -584,7 +590,7 @@ exp_call:
 '{'
     'type' ':' 'CallExpression' ','
     'callee' ':' exp ','
-    'arguments' ':' '[' arguments ']' ','
+    'arguments' ':' '[' expressions ']' ','
     'loc' ':' location
 '}'
 {
@@ -605,7 +611,11 @@ exp_lambda:
     'type' ':' 'LambdaExpression' ','
     'id' ':' 'null' ','
     'params' ':' params ','
-    'body' ':' stmts 
+    'body' ':' stmts ','
+    'generator' ':' bool ','
+    'expression' ':' bool ','
+    'async' ':' bool ','
+    'loc' ':' location
 '}'
 {
     Ast.ExpLambda $ Ast.ExpLambdaContent
@@ -615,19 +625,62 @@ exp_lambda:
     }
 }
 
+-- *******************
+-- *                 *
+-- * fstring_element *
+-- *                 *
+-- *******************
+fstring_element:
+'{'
+    'type' ':' 'TemplateElement' ','
+    'value' ':' '{'
+        'raw' ':' ID ','
+        'cooked' ':' ID
+    '}' ','
+    'tail' ':' bool ','
+    'loc' ':' location
+'}'
+{
+    Nothing    
+}
+
+-- ***************
+-- *             *
+-- * exp_fstring *
+-- *             *
+-- ***************
+exp_fstring:
+'{'
+    'type' ':' 'TemplateLiteral' ','
+    'quasis' ':' '[' commalistof(fstring_element) ']' ','
+    'expressions' ':' '[' expressions ']' ','
+    'loc' ':' location
+'}'
+{
+    Ast.ExpCall $ Ast.ExpCallContent
+    {
+        Ast.callee = Ast.ExpVar $ Ast.ExpVarContent $ Ast.VarSimple $ Ast.VarSimpleContent
+        {
+            Ast.varName = Token.VarName $ Token.Named "fstring" $20
+        },
+        Ast.args = $15
+    }
+}
+
 -- *******
 -- *     *
 -- * exp *
 -- *     *
 -- *******
 exp:
-exp_int    { $1 } |
-exp_str    { $1 } |
-exp_var    { $1 } |
-exp_bool   { $1 } |
-exp_call   { $1 } |
-exp_binop  { $1 } |
-exp_lambda { $1 }
+exp_int     { $1 } |
+exp_str     { $1 } |
+exp_var     { $1 } |
+exp_bool    { $1 } |
+exp_call    { $1 } |
+exp_binop   { $1 } |
+exp_lambda  { $1 } |
+exp_fstring { $1 }
 -- exp_assign { Nothing }
 
 -- ************

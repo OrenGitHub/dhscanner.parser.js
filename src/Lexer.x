@@ -75,6 +75,7 @@ import Location
 @KW_VAR             = "var"
 @KW_NULL            = null
 @KW_KIND            = \"kind\"
+@KW_TAIL            = \"tail\"
 @KW_TEST            = \"test\"
 @KW_LINE            = \"line\"
 @KW_TRUE            = true
@@ -88,7 +89,9 @@ import Location
 @KW_INIT            = \"init\"
 @KW_COND            = "cond"
 @KW_BODY            = \"body\"
+@KW_COOKED          = \"cooked\"
 @KW_UPDATE          = \"update\"
+@KW_QUASIS          = \"quasis\"
 @KW_FALSE           = false
 @KW_START           = \"start\"
 @KW_EXPRS           = "exprs"
@@ -113,6 +116,7 @@ import Location
 @KW_GENERATOR       = \"generator\"
 @KW_SRC_TYPE        = \"sourceType\"
 @KW_EXPRESSION      = \"expression\"
+@KW_EXPRESSIONS     = \"expressions\"
 @KW_DECLARATIONS    = \"declarations\"
 @KW_ALTERNATE       = \"alternate\"
 @KW_CONSEQUENT      = \"consequent\"
@@ -122,6 +126,8 @@ import Location
 @KW_SCALAR_INT      = "Scalar_Int"
 @KW_IDENTIFIER      = \"Identifier\"
 @KW_RETURN_TYPE     = "returnType"
+@KW_TEMPLATE_LI     = \"TemplateLiteral\"
+@KW_TEMPLATE_EL     = \"TemplateElement\"
 @KW_STMT_FUNCTION   = "Stmt_Function"
 @KW_FUNCTION_DEC    = \"FunctionDeclaration\"
 @KW_EXPR_CONST_GET  = "Expr_ConstFetch"
@@ -186,7 +192,8 @@ import Location
 @SQUOTE = \'
 @DQUOTE = \\\"
 @NQUOTE = [^\"\']*
-@ID = (@QUOTE)(@NQUOTE)(@QUOTE)
+@MQUOTE = [^\"]*
+@ID = (@QUOTE)(@MQUOTE)(@QUOTE)
 @QUOTED_INT = (@QUOTE)(@INT)(@QUOTE)
 @QUOTED_STR_S = (@QUOTE)(@SQUOTE)(@NQUOTE)(@SQUOTE)(@QUOTE)
 @QUOTED_STR_D = (@QUOTE)(@DQUOTE)(@NQUOTE)(@DQUOTE)(@QUOTE) 
@@ -243,6 +250,7 @@ tokens :-
 @KW_ARG             { lex' AlexRawToken_ARG             }
 @KW_VAR             { lex' AlexRawToken_VAR             }
 @KW_NULL            { lex' AlexRawToken_NULL            }
+@KW_TAIL            { lex' AlexRawToken_TAIL            }
 @KW_KIND            { lex' AlexRawToken_KIND            }
 @KW_TEST            { lex' AlexRawToken_TEST            }
 @KW_LINE            { lex' AlexRawToken_LINE            }
@@ -257,7 +265,9 @@ tokens :-
 @KW_INIT            { lex' AlexRawToken_INIT            }
 @KW_COND            { lex' AlexRawToken_COND            }
 @KW_BODY            { lex' AlexRawToken_BODY            }
+@KW_COOKED          { lex' AlexRawToken_COOKED          }
 @KW_UPDATE          { lex' AlexRawToken_UPDATE          }
+@KW_QUASIS          { lex' AlexRawToken_QUASIS          }
 @KW_FALSE           { lex' AlexRawToken_FALSE           }
 @KW_START           { lex' AlexRawToken_START           }
 @KW_EXPRS           { lex' AlexRawToken_EXPRS           }
@@ -282,6 +292,7 @@ tokens :-
 @KW_CALLEE          { lex' AlexRawToken_CALLEE          }
 @KW_ASYNC           { lex' AlexRawToken_ASYNC           }
 @KW_EXPRESSION      { lex' AlexRawToken_EXPRESSION      }
+@KW_EXPRESSIONS     { lex' AlexRawToken_EXPRESSIONS     }
 @KW_DECLARATIONS    { lex' AlexRawToken_DECLARATIONS    }
 @KW_SRC_TYPE        { lex' AlexRawToken_SRC_TYPE        }
 @KW_GENERATOR       { lex' AlexRawToken_GENERATOR       }
@@ -293,6 +304,8 @@ tokens :-
 @KW_SCALAR_INT      { lex' AlexRawToken_SCALAR_INT      }
 @KW_IDENTIFIER      { lex' AlexRawToken_IDENTIFIER      }
 @KW_RETURN_TYPE     { lex' AlexRawToken_RETURN_TYPE     }
+@KW_TEMPLATE_LI     { lex' AlexRawToken_TEMPLATE_LI     }
+@KW_TEMPLATE_EL     { lex' AlexRawToken_TEMPLATE_EL     }
 @KW_FUNCTION_DEC    { lex' AlexRawToken_FUNCTION_DEC    }
 @KW_EXPR_CONST_GET  { lex' AlexRawToken_EXPR_CONST_GET  }
 @KW_EXPR_BINOP_LT   { lex' AlexRawToken_EXPR_BINOP_LT   }
@@ -445,6 +458,7 @@ data AlexRawToken
      | AlexRawToken_VAR             -- ^ Reserved Keyword
      | AlexRawToken_TEST            -- ^ Reserved Keyword
      | AlexRawToken_NULL            -- ^ Reserved Keyword
+     | AlexRawToken_TAIL            -- ^ Reserved Keyword
      | AlexRawToken_KIND            -- ^ Reserved Keyword
      | AlexRawToken_LINE            -- ^ Reserved Keyword
      | AlexRawToken_TRUE            -- ^ Reserved Keyword
@@ -459,7 +473,9 @@ data AlexRawToken
      | AlexRawToken_COND            -- ^ Reserved Keyword
      | AlexRawToken_BODY            -- ^ Reserved Keyword
      | AlexRawToken_START           -- ^ Reserved Keyword
+     | AlexRawToken_COOKED          -- ^ Reserved Keyword
      | AlexRawToken_UPDATE          -- ^ Reserved Keyword
+     | AlexRawToken_QUASIS          -- ^ Reserved Keyword
      | AlexRawToken_FALSE           -- ^ Reserved Keyword
      | AlexRawToken_EXPRS           -- ^ Reserved Keyword
      | AlexRawToken_VALUE           -- ^ Reserved Keyword
@@ -483,6 +499,7 @@ data AlexRawToken
      | AlexRawToken_CALLEE          -- ^ Reserved Keyword
      | AlexRawToken_ASYNC           -- ^ Reserved Keyword
      | AlexRawToken_EXPRESSION      -- ^ Reserved Keyword
+     | AlexRawToken_EXPRESSIONS     -- ^ Reserved Keyword
      | AlexRawToken_DECLARATIONS    -- ^ Reserved Keyword
      | AlexRawToken_SRC_TYPE        -- ^ Reserved Keyword
      | AlexRawToken_GENERATOR       -- ^ Reserved Keyword
@@ -492,6 +509,8 @@ data AlexRawToken
      | AlexRawToken_SCALAR_INT      -- ^ Reserved Keyword
      | AlexRawToken_IDENTIFIER      -- ^ Reserved Keyword
      | AlexRawToken_RETURN_TYPE     -- ^ Reserved Keyword
+     | AlexRawToken_TEMPLATE_LI     -- ^ Reserved Keyword
+     | AlexRawToken_TEMPLATE_EL     -- ^ Reserved Keyword
      | AlexRawToken_STMT_FUNCTION   -- ^ Reserved Keyword
      | AlexRawToken_FUNCTION_DEC    -- ^ Reserved Keyword
      | AlexRawToken_EXPR_CONST_GET  -- ^ Reserved Keyword
