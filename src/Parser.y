@@ -334,7 +334,7 @@ location:
     {
         Location.filename = "DDD",
         lineStart = tokIntValue $7,
-        colStart = tokIntValue $11,
+        colStart = 1 + (tokIntValue $11),
         lineEnd = tokIntValue $19,
         colEnd = tokIntValue $23
     }
