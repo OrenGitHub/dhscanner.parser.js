@@ -7,3 +7,4 @@ RUN apt-get install vim -y
 RUN echo "set number" > ~/.vimrc
 WORKDIR /parser.js
 COPY . .
+CMD ["cabal", "run"]
