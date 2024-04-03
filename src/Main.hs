@@ -30,13 +30,10 @@ data SourceFile
 data App = App
 
 mkYesod "App" [parseRoutes|
-/ HomeR GET POST
+/to/dhscanner/ast HomeR POST
 |]
 
 instance Yesod App
-
-getHomeR :: Handler Value
-getHomeR = returnJson $ SourceFile { filename = "", content = "Michael" }
 
 postHomeR :: Handler Value
 postHomeR = do
