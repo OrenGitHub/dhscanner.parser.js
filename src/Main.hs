@@ -29,6 +29,11 @@ data SourceFile
 
 data Healthy = Healthy Bool deriving ( Generic )
 
+data Error = Error String String deriving ( Generic )
+
+-- | indicate a parse error 
+instance ToJSON Error where toJSON (Error status message) = object [ "status" .= status, "message" .= message ]
+
 -- | This is just for the health check ...
 instance ToJSON Healthy where toJSON (Healthy status) = object [ "healthy" .= status ]
 
@@ -48,7 +53,7 @@ postHomeR :: Handler Value
 postHomeR = do
     src <- requireCheckJsonBody :: Handler SourceFile
     case parseProgram (filename src) (content src) of
-        Left errorMsg -> returnJson (pack errorMsg)
+        Left errorMsg -> returnJson (Error "FAILED" errorMsg)
         Right ast -> returnJson ast
 
 main :: IO ()
