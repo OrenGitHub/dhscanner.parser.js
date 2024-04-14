@@ -332,7 +332,7 @@ location:
 {
     Location
     {
-        Location.filename = "DDD",
+        Location.filename = Location.filename (location $7),
         lineStart = tokIntValue $7,
         colStart = 1 + (tokIntValue $11),
         lineEnd = tokIntValue $19,
