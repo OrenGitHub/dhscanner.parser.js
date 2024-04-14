@@ -364,7 +364,7 @@ identifier:
 {
     Token.Named
     {
-        Token.content = $8,
+        Token.content = unquote $8,
         Token.location = $12
     }
 }
@@ -918,6 +918,9 @@ dec_function:
 }
 
 {
+
+unquote :: String -> String
+unquote s = let n = length s in take (n-2) (drop 1 s)
 
 extractParamSingleName' :: [ Token.ParamName ] -> Maybe Token.ParamName
 extractParamSingleName' ps = case ps of { [p] -> Just p; _ -> Nothing }
