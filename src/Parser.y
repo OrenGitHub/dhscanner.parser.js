@@ -606,7 +606,8 @@ exp_call:
     Ast.ExpCallContent
     {
         Ast.callee = $8,
-        Ast.args = $13
+        Ast.args = $13,
+        Ast.expCallLocation = $18
     }
 }
 
@@ -672,7 +673,8 @@ exp_fstring:
         {
             Ast.varName = Token.VarName $ Token.Named "fstring" $20
         },
-        Ast.args = $15
+        Ast.args = $15,
+        Ast.expCallLocation = $20
     }
 }
 
@@ -692,7 +694,8 @@ exp_new:
     Ast.ExpCall $ Ast.ExpCallContent
     {
         Ast.callee = $8,
-        Ast.args = $13
+        Ast.args = $13,
+        Ast.expCallLocation = $18
     }
 }
 
