@@ -443,7 +443,8 @@ var_field:
     Ast.VarField $ Ast.VarFieldContent
     {
         varFieldLhs = Ast.ExpVarContent $12,
-        varFieldName = Token.FieldName $16
+        varFieldName = Token.FieldName $16,
+        varFieldLocation = $20
     }
 }
 
@@ -523,7 +524,7 @@ exp_str:
     {
         expStrValue = Token.ConstStr
         {
-            Token.constStrValue = tokIDValue $8,
+            Token.constStrValue = unquote (tokIDValue $8),
             Token.constStrLocation = $16
         }
     }
