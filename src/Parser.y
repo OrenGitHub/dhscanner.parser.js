@@ -632,7 +632,8 @@ exp_lambda:
     Ast.ExpLambda $ Ast.ExpLambdaContent
     {
         expLambdaParams = $12,
-        expLambdaBody = $16
+        expLambdaBody = $16,
+        expLambdaLocation = $32
     }
 }
 
