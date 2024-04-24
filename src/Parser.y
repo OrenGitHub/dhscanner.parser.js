@@ -377,13 +377,13 @@ identifier:
 param:
 '{'
     'type' ':' 'Identifier' ','
-    'name' ':' ID ','
+    'name' ':' tokenID ','
     'loc' ':' location
 '}'
 {
     Ast.Param
     {
-        Ast.paramName = Token.ParamName $ Token.Named (tokIDValue $8) $12,
+        Ast.paramName = Token.ParamName $ Token.Named (unquote $8) $12,
         Ast.paramNominalType = Token.NominalTy $ Token.Named "any" $12,
         Ast.paramSerialIdx = 156
     }
